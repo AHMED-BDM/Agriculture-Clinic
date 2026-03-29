@@ -3,56 +3,51 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-# --- 1. UI Configuration ---
+# --- 1. Page Config ---
 st.set_page_config(page_title="Smart Ag-Clinic", page_icon="🌿", layout="wide")
 
-# --- Custom CSS for Professional Look and High Contrast ---
+# --- 2. CSS Styles (Fixing Contrast & Text Visibility) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Roboto', sans-serif;
     }
 
-    /* Fixed Advice Card for High Readability */
+    /* This class ensures the advice is always readable with black text */
     .expert-card {
-        background-color: #ffffff; /* Solid White Background */
-        padding: 25px;
-        border-radius: 12px;
-        border-left: 8px solid #2e7d32;
-        color: #1a1a1a !important; /* Force Dark Text */
+        background-color: #ffffff !important; 
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 10px solid #2e7d32;
+        color: #000000 !important;
         margin-top: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
     }
     
     .expert-card h3, .expert-card h4, .expert-card b, .expert-card p, .expert-card li {
-        color: #1a1a1a !important;
+        color: #000000 !important;
+        text-align: left;
     }
 
     .stButton>button {
         width: 100%;
         background-color: #2e7d32;
         color: white;
-        border-radius: 8px;
         font-weight: bold;
-        height: 3em;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. Model Loading (Cached) ---
+# --- 3. Load Model ---
 @st.cache_resource
 def load_my_model():
-    # Ensure Fplant_model.keras is in the same directory on GitHub
     return tf.keras.models.load_model('Fplant_model.keras')
 
-try:
-    model = load_my_model()
-except Exception as e:
-    st.error(f"Error loading model: {e}")
+model = load_my_model()
 
-# --- 3. Class Names ---
+# --- 4. Categories ---
 class_names = [
     "Pepper__bell___Bacterial_spot", "Pepper__bell___healthy",
     "Potato___Early_blight", "Potato___Late_blight", "Potato___healthy",
@@ -63,125 +58,74 @@ class_names = [
     "Tomato_healthy"
 ]
 
-# --- 4. Expert AI Advice Logic ---
-def generate_expert_report(disease, temp, soil, water, confidence):
-    disease_display = disease.replace("_", " ")
+# --- 5. Advice Logic (English Content) ---
+def generate_report(disease, temp, soil, water, conf):
+    disease_name = disease.replace("_", " ")
     
-    report = f"""
+    # Building the HTML block
+    report_html = f"""
     <div class="expert-card">
-        <h3 style="margin-top:0;">👨‍🌾 Agricultural Consultant Technical Report</h3>
-        <p><b>Detected Condition:</b> {disease_display}</p>
-        <p><b>Analysis Confidence:</b> {confidence*100:.1f}%</p>
+        <h3 style="color: #2e7d32 !important;">👨‍🌾 Agricultural Expert Report</h3>
+        <p><b>Diagnosis:</b> {disease_name}</p>
+        <p><b>Confidence:</b> {conf*100:.1f}%</p>
         <hr>
-        
-        <h4>🔍 Part I: Pathological Analysis & Treatment</h4>
+        <h4>🔍 Analysis & Treatment:</h4>
     """
     
     if "healthy" in disease:
-        report += """
-        <p>✅ <b>Status:</b> The plant is in optimal physiological condition. No signs of fungal or viral infection detected.</p>
-        <ul>
-            <li><b>Nutrition:</b> Maintain balanced NPK fertigation.</li>
-            <li><b>Immunity:</b> Apply seaweed extract every 15 days to enhance resistance to climatic stress.</li>
-        </ul>
-        """
+        report_html += "<p>✅ Plant is healthy. Maintain current fertilization and irrigation schedule.</p>"
     elif "Late_blight" in disease:
-        report += """
-        <p>🚨 <b>Critical Warning:</b> Late Blight (Phytophthora infestans) is a highly destructive pathogen.</p>
-        <ul>
-            <li><b>Chemical Control:</b> Immediate application of systemic fungicides containing Metalaxyl or Mancozeb.</li>
-            <li><b>Cultural Practice:</b> Remove and burn infected foliage immediately. Reduce humidity by skipping irrigation cycles.</li>
-        </ul>
-        """
-    elif "Early_blight" in disease:
-        report += """
-        <p>🍂 <b>Analysis:</b> Early Blight usually indicates nitrogen deficiency or fluctuating moisture.</p>
-        <ul>
-            <li><b>Treatment:</b> Use Chlorothalonil or Azoxystrobin based fungicides.</li>
-            <li><b>Pro-tip:</b> Prune lower leaves to prevent soil-borne spores from splashing onto the plant.</li>
-        </ul>
-        """
+        report_html += "<p>🚨 <b>Critical:</b> Late Blight detected. Immediate application of fungicides (e.g., Metalaxyl) is required.</p>"
     elif "Spider_mites" in disease:
-        report += """
-        <p>🕷️ <b>Pest Alert:</b> Red Spider Mites thrive in hot, dry conditions.</p>
-        <ul>
-            <li><b>Action:</b> Spray specialized acaricides like Abamectin. Focus on the underside of the leaves.</li>
-            <li><b>Environment:</b> Increase ambient humidity if possible to disrupt their breeding cycle.</li>
-        </ul>
-        """
-    elif "Virus" in disease or "virus" in disease:
-        report += """
-        <p>🚫 <b>Viral Infection:</b> No chemical cure exists for the plant itself.</p>
-        <ul>
-            <li><b>Eradication:</b> Uproot the infected plant immediately to prevent spread.</li>
-            <li><b>Vector Control:</b> Control Whiteflies and Aphids using systemic insecticides (Imidacloprid).</li>
-        </ul>
-        """
+        report_html += "<p>🕷️ <b>Pest:</b> Spider Mites detected. Use Acaricides and increase humidity.</p>"
     else:
-        report += "<p>🍄 <b>Fungal Spotting:</b> Apply copper-based fungicides and improve air circulation.</p>"
+        report_html += "<p>🍄 Fungal/Bacterial infection. Use copper-based sprays and improve air circulation.</p>"
 
-    report += "<h4>🌍 Part II: Environmental & Soil Management</h4>"
+    report_html += f"""
+        <h4>🌍 Environment & Soil:</h4>
+        <p>Current Temperature: {temp}°C | Soil: {soil} | Water: {water}</p>
+    """
     
-    # Environmental Intelligence
     if soil == "Clay" and water == "High":
-        report += "<p>⚠️ <b>Warning:</b> Heavy soil with high water saturation leads to <b>Root Rot</b>. Stop irrigation immediately.</p>"
-    elif soil == "Sandy" and water == "Low":
-        report += "<p>💧 <b>Alert:</b> Sandy soil leaches nutrients quickly. Use frequent, short irrigation pulses.</p>"
-    
-    if temp > 35:
-        report += f"<p>🌡️ <b>Heat Stress ({temp}°C):</b> High temperatures inhibit photosynthesis. Apply Potassium Silicate to strengthen cell walls.</p>"
-    
-    report += f"<br><b>💡 Consultant Summary:</b> {'Diagnosis is highly reliable, proceed with action plan.' if confidence > 0.85 else 'Visual verification recommended due to moderate confidence.'}"
-    report += "</div>"
-    
-    return report
+        report_html += "<p>⚠️ <b>Risk:</b> High water in clay soil may cause Root Rot.</p>"
 
-# --- 5. Main App Layout ---
+    report_html += "</div>"
+    return report_html
+
+# --- 6. Layout ---
 st.title("🌿 Smart Agricultural Clinic")
-st.markdown("Professional AI-powered diagnosis for Tomato, Potato, and Pepper crops.")
-st.markdown("---")
+st.markdown("AI-driven diagnosis for Tomato, Potato, and Pepper crops.")
 
 col1, col2 = st.columns([1, 1.2], gap="large")
 
 with col1:
-    st.subheader("📷 Sample Input")
-    image_file = st.file_uploader("Upload leaf image", type=["jpg", "png", "jpeg"])
-    
-    st.markdown("---")
-    temp_val = st.slider("🌡️ Ambient Temperature (°C)", 0, 50, 25)
-    soil_type = st.selectbox("🌱 Soil Type", ["Clay", "Sandy", "Loamy"])
-    water_status = st.selectbox("💧 Irrigation Status", ["Low", "Medium", "High"])
-    
+    st.subheader("📷 Input Data")
+    img_file = st.file_uploader("Upload leaf image", type=["jpg", "jpeg", "png"])
+    temp_val = st.slider("Temperature (°C)", 0, 50, 25)
+    soil_type = st.selectbox("Soil Type", ["Clay", "Sandy", "Loamy"])
+    water_val = st.selectbox("Water Status", ["Low", "Medium", "High"])
+
 with col2:
-    st.subheader("🔍 Diagnostic Results")
-    
-    if image_file:
-        image = Image.open(image_file)
-        st.image(image, caption="Uploaded Sample", width=350)
+    st.subheader("🔍 Analysis Results")
+    if img_file:
+        img = Image.open(img_file)
+        st.image(img, width=350)
         
-        if st.button("🚀 RUN ANALYSIS"):
-            with st.spinner('Analyzing plant pathology...'):
-                # Image Preprocessing
-                img = image.convert("RGB").resize((224, 224))
-                img_array = np.array(img) / 255.0
-                img_array = np.expand_dims(img_array, axis=0)
+        if st.button("RUN AI ANALYSIS"):
+            with st.spinner('Processing...'):
+                # Prep image
+                test_img = img.convert("RGB").resize((224, 224))
+                img_arr = np.array(test_img) / 255.0
+                img_arr = np.expand_dims(img_arr, axis=0)
                 
-                # Model Prediction
-                predictions = model.predict(img_array, verbose=0)
-                idx = np.argmax(predictions)
-                conf = float(np.max(predictions))
+                # Predict
+                preds = model.predict(img_arr, verbose=0)
+                idx = np.argmax(preds)
+                confidence = float(np.max(preds))
                 disease = class_names[idx]
                 
-                # Display Metrics
-                m1, m2 = st.columns(2)
-                m1.metric("Condition", disease.split("___")[-1].replace("_", " "))
-                m2.metric("Confidence", f"{conf*100:.1f}%")
-                
-                # Generate and Render High-Contrast Report
-                expert_html = generate_expert_report(disease, temp_val, soil_type, water_status, conf)
-                st.markdown(expert_html, unsafe_allow_html=True)
+                # Show report - CRITICAL FIX HERE
+                report_content = generate_report(disease, temp_val, soil_type, water_val, confidence)
+                st.markdown(report_content, unsafe_allow_html=True)
     else:
-        st.info("Please upload a leaf photo to receive a consultation.")
-
-st.markdown("---")
-st.caption("AI Consultant v2.0 | Developed for Precision Agriculture")
+        st.info("Upload an image to start.")
