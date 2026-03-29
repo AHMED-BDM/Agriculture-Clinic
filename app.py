@@ -3,51 +3,56 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-# --- 1. إعدادات واجهة المستخدم ---
-st.set_page_config(page_title="العيادة الزراعية الذكية", page_icon="🌿", layout="wide")
+# --- 1. UI Configuration ---
+st.set_page_config(page_title="Smart Ag-Clinic", page_icon="🌿", layout="wide")
 
-# --- تحسين المظهر وحل مشكلة لون الخط ---
+# --- Custom CSS for Professional Look and High Contrast ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Tajawal', sans-serif;
-        direction: rtl;
-        text-align: right;
-    }
-    
-    /* تنسيق كارت النصائح لحل مشكلة الخط الأبيض */
-    .advice-box {
-        background-color: rgba(255, 255, 255, 0.9); /* خلفية بيضاء قوية */
-        padding: 25px;
-        border-radius: 15px;
-        border-right: 8px solid #2e7d32;
-        color: #1a1a1a !important; /* فرض اللون الأسود للنص */
-        margin-top: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    .advice-box h3, .advice-box h4, .advice-box b, .advice-box p, .advice-box span {
-        color: #1a1a1a !important; /* ضمان أن كل العناوين بالأسود */
+        font-family: 'Roboto', sans-serif;
     }
 
-    .stMetric {
-        background-color: rgba(255, 255, 255, 0.05);
-        padding: 10px;
-        border-radius: 10px;
+    /* Fixed Advice Card for High Readability */
+    .expert-card {
+        background-color: #ffffff; /* Solid White Background */
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 8px solid #2e7d32;
+        color: #1a1a1a !important; /* Force Dark Text */
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .expert-card h3, .expert-card h4, .expert-card b, .expert-card p, .expert-card li {
+        color: #1a1a1a !important;
+    }
+
+    .stButton>button {
+        width: 100%;
+        background-color: #2e7d32;
+        color: white;
+        border-radius: 8px;
+        font-weight: bold;
+        height: 3em;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. تحميل الموديل ---
+# --- 2. Model Loading (Cached) ---
 @st.cache_resource
 def load_my_model():
+    # Ensure Fplant_model.keras is in the same directory on GitHub
     return tf.keras.models.load_model('Fplant_model.keras')
 
-model = load_my_model()
+try:
+    model = load_my_model()
+except Exception as e:
+    st.error(f"Error loading model: {e}")
 
-# --- 3. البيانات ---
+# --- 3. Class Names ---
 class_names = [
     "Pepper__bell___Bacterial_spot", "Pepper__bell___healthy",
     "Potato___Early_blight", "Potato___Late_blight", "Potato___healthy",
@@ -58,99 +63,125 @@ class_names = [
     "Tomato_healthy"
 ]
 
-# قاموس ترجمة الأسماء للعربية
-arabic_names = {
-    "Pepper__bell___Bacterial_spot": "فلفل - تبقع بكتيري",
-    "Pepper__bell___healthy": "فلفل - سليم",
-    "Potato___Early_blight": "بطاطس - ندوة مبكرة",
-    "Potato___Late_blight": "بطاطس - ندوة متأخرة",
-    "Potato___healthy": "بطاطس - سليم",
-    "Tomato_Bacterial_spot": "طماطم - تبقع بكتيري",
-    "Tomato_Early_blight": "طماطم - ندوة مبكرة",
-    "Tomato_Late_blight": "طماطم - ندوة متأخرة",
-    "Tomato_Leaf_Mold": "طماطم - عفن أوراق",
-    "Tomato_Septoria_leaf_spot": "طماطم - تبقع سبتوري",
-    "Tomato_Spider_mites_Two_spotted_spider_mite": "طماطم - عنكبوت أحمر",
-    "Tomato__Target_Spot": "طماطم - تبقع هدفي",
-    "Tomato__Tomato_YellowLeaf__Curl_Virus": "طماطم - فيروس تجعد الأوراق",
-    "Tomato__Tomato_mosaic_virus": "طماطم - فيروس الموزاييك",
-    "Tomato_healthy": "طماطم - سليم"
-}
-
-# --- 4. دالة النصيحة الفنية ---
-def ai_advice(disease, temp, soil, water, confidence):
-    disease_ar = arabic_names.get(disease, disease)
+# --- 4. Expert AI Advice Logic ---
+def generate_expert_report(disease, temp, soil, water, confidence):
+    disease_display = disease.replace("_", " ")
     
-    # بناء نص التقرير
-    html_report = f"""
-    <div class="advice-box">
-        <h3 style="margin-top:0;">👨‍🌾 التقرير الفني للاستشاري الزراعي</h3>
-        <p><b>الحالة المرصودة:</b> {disease_ar}</p>
-        <p><b>دقة التشخيص:</b> {confidence*100:.1f}%</p>
-        <hr style="border:0; border-top:1px solid #ccc;">
+    report = f"""
+    <div class="expert-card">
+        <h3 style="margin-top:0;">👨‍🌾 Agricultural Consultant Technical Report</h3>
+        <p><b>Detected Condition:</b> {disease_display}</p>
+        <p><b>Analysis Confidence:</b> {confidence*100:.1f}%</p>
+        <hr>
         
-        <h4>🔍 أولاً: التحليل والإجراءات:</h4>
+        <h4>🔍 Part I: Pathological Analysis & Treatment</h4>
     """
     
     if "healthy" in disease:
-        html_report += "<p>✅ النبات في حالة ممتازة. استمر في نظام التسميد الحالي مع مراقبة دورية.</p>"
+        report += """
+        <p>✅ <b>Status:</b> The plant is in optimal physiological condition. No signs of fungal or viral infection detected.</p>
+        <ul>
+            <li><b>Nutrition:</b> Maintain balanced NPK fertigation.</li>
+            <li><b>Immunity:</b> Apply seaweed extract every 15 days to enhance resistance to climatic stress.</li>
+        </ul>
+        """
     elif "Late_blight" in disease:
-        html_report += "<p>🚨 <b>تحذير:</b> ندوة متأخرة. يجب الرش فوراً بمبيد يحتوي على (ميتالاكسيل). قلل الرطوبة فوراً.</p>"
+        report += """
+        <p>🚨 <b>Critical Warning:</b> Late Blight (Phytophthora infestans) is a highly destructive pathogen.</p>
+        <ul>
+            <li><b>Chemical Control:</b> Immediate application of systemic fungicides containing Metalaxyl or Mancozeb.</li>
+            <li><b>Cultural Practice:</b> Remove and burn infected foliage immediately. Reduce humidity by skipping irrigation cycles.</li>
+        </ul>
+        """
+    elif "Early_blight" in disease:
+        report += """
+        <p>🍂 <b>Analysis:</b> Early Blight usually indicates nitrogen deficiency or fluctuating moisture.</p>
+        <ul>
+            <li><b>Treatment:</b> Use Chlorothalonil or Azoxystrobin based fungicides.</li>
+            <li><b>Pro-tip:</b> Prune lower leaves to prevent soil-borne spores from splashing onto the plant.</li>
+        </ul>
+        """
     elif "Spider_mites" in disease:
-        html_report += "<p>🕷️ <b>عنكبوت أحمر:</b> رش مبيد أكاروسي (أبامكتين) مع غسل الأوراق بالماء صباحاً.</p>"
+        report += """
+        <p>🕷️ <b>Pest Alert:</b> Red Spider Mites thrive in hot, dry conditions.</p>
+        <ul>
+            <li><b>Action:</b> Spray specialized acaricides like Abamectin. Focus on the underside of the leaves.</li>
+            <li><b>Environment:</b> Increase ambient humidity if possible to disrupt their breeding cycle.</li>
+        </ul>
+        """
+    elif "Virus" in disease or "virus" in disease:
+        report += """
+        <p>🚫 <b>Viral Infection:</b> No chemical cure exists for the plant itself.</p>
+        <ul>
+            <li><b>Eradication:</b> Uproot the infected plant immediately to prevent spread.</li>
+            <li><b>Vector Control:</b> Control Whiteflies and Aphids using systemic insecticides (Imidacloprid).</li>
+        </ul>
+        """
     else:
-        html_report += "<p>🍄 إصابة فطرية/بكتيرية. نوصي برش وقائي بمركبات النحاس وتحسين التهوية.</p>"
+        report += "<p>🍄 <b>Fungal Spotting:</b> Apply copper-based fungicides and improve air circulation.</p>"
 
-    html_report += "<h4>🌍 ثانياً: البيئة والتربة:</h4>"
+    report += "<h4>🌍 Part II: Environmental & Soil Management</h4>"
     
-    if soil == "طينية" and water == "كثير":
-        html_report += "<p>⚠️ <b>خطر:</b> التربة الطينية تحتفظ بالماء؛ توقف عن الري لتجنب أعفان الجذور.</p>"
+    # Environmental Intelligence
+    if soil == "Clay" and water == "High":
+        report += "<p>⚠️ <b>Warning:</b> Heavy soil with high water saturation leads to <b>Root Rot</b>. Stop irrigation immediately.</p>"
+    elif soil == "Sandy" and water == "Low":
+        report += "<p>💧 <b>Alert:</b> Sandy soil leaches nutrients quickly. Use frequent, short irrigation pulses.</p>"
     
-    if temp > 38:
-        html_report += f"<p>🌡️ <b>إجهاد حراري ({temp}°C):</b> رش سليكات بوتاسيوم لزيادة تحمل النبات.</p>"
-
-    html_report += f"<br><b>💡 ملخص:</b> {'التشخيص دقيق، ابدأ التنفيذ.' if confidence > 0.8 else 'يفضل التأكد بالعين المجردة.'}"
-    html_report += "</div>"
+    if temp > 35:
+        report += f"<p>🌡️ <b>Heat Stress ({temp}°C):</b> High temperatures inhibit photosynthesis. Apply Potassium Silicate to strengthen cell walls.</p>"
     
-    return html_report
+    report += f"<br><b>💡 Consultant Summary:</b> {'Diagnosis is highly reliable, proceed with action plan.' if confidence > 0.85 else 'Visual verification recommended due to moderate confidence.'}"
+    report += "</div>"
+    
+    return report
 
-# --- 5. واجهة المستخدم ---
-st.title("🌿 العيادة الزراعية الذكية")
-st.markdown("استشارة فورية مدعومة بالذكاء الاصطناعي")
+# --- 5. Main App Layout ---
+st.title("🌿 Smart Agricultural Clinic")
+st.markdown("Professional AI-powered diagnosis for Tomato, Potato, and Pepper crops.")
+st.markdown("---")
 
-col1, col2 = st.columns([1, 1], gap="large")
+col1, col2 = st.columns([1, 1.2], gap="large")
 
 with col1:
-    st.subheader("📷 بيانات العينة")
-    image_file = st.file_uploader("ارفع صورة ورقة النبات", type=["jpg", "png", "jpeg"])
-    temp_in = st.slider("🌡️ درجة الحرارة", 0, 50, 25)
-    soil_in = st.selectbox("🌱 نوع التربة", ["طينية", "رملية", "طميية"])
-    water_in = st.selectbox("💧 حالة الري", ["قليل", "متوسط", "كثير"])
+    st.subheader("📷 Sample Input")
+    image_file = st.file_uploader("Upload leaf image", type=["jpg", "png", "jpeg"])
+    
+    st.markdown("---")
+    temp_val = st.slider("🌡️ Ambient Temperature (°C)", 0, 50, 25)
+    soil_type = st.selectbox("🌱 Soil Type", ["Clay", "Sandy", "Loamy"])
+    water_status = st.selectbox("💧 Irrigation Status", ["Low", "Medium", "High"])
     
 with col2:
-    st.subheader("🔍 تقرير الفحص")
+    st.subheader("🔍 Diagnostic Results")
+    
     if image_file:
         image = Image.open(image_file)
-        st.image(image, caption="العينة المرصودة", use_container_width=True)
+        st.image(image, caption="Uploaded Sample", width=350)
         
-        if st.button("🚀 تحليل الحالة الآن"):
-            with st.spinner('جاري التحليل...'):
+        if st.button("🚀 RUN ANALYSIS"):
+            with st.spinner('Analyzing plant pathology...'):
+                # Image Preprocessing
                 img = image.convert("RGB").resize((224, 224))
                 img_array = np.array(img) / 255.0
                 img_array = np.expand_dims(img_array, axis=0)
                 
-                pred = model.predict(img_array, verbose=0)
-                idx = np.argmax(pred)
-                conf = float(np.max(pred))
-                disease_name = class_names[idx]
+                # Model Prediction
+                predictions = model.predict(img_array, verbose=0)
+                idx = np.argmax(predictions)
+                conf = float(np.max(predictions))
+                disease = class_names[idx]
                 
-                # عرض النتائج السريعة
-                c1, c2 = st.columns(2)
-                c1.metric("المرض", arabic_names.get(disease_name, disease_name))
-                c2.metric("الثقة", f"{conf*100:.1f}%")
+                # Display Metrics
+                m1, m2 = st.columns(2)
+                m1.metric("Condition", disease.split("___")[-1].replace("_", " "))
+                m2.metric("Confidence", f"{conf*100:.1f}%")
                 
-                # عرض التقرير الفني باستخدام HTML المحمي بـ CSS
-                report_html = ai_advice(disease_name, temp_in, soil_in, water_in, conf)
-                st.markdown(report_html, unsafe_allow_html=True)
+                # Generate and Render High-Contrast Report
+                expert_html = generate_expert_report(disease, temp_val, soil_type, water_status, conf)
+                st.markdown(expert_html, unsafe_allow_html=True)
     else:
-        st.info("قم برفع صورة الورقة لبدء التقرير")
+        st.info("Please upload a leaf photo to receive a consultation.")
+
+st.markdown("---")
+st.caption("AI Consultant v2.0 | Developed for Precision Agriculture")
