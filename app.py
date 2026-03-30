@@ -39,6 +39,10 @@ if "saved_report" not in st.session_state:
     st.session_state.saved_report = ""
 if "show_modal" not in st.session_state:
     st.session_state.show_modal = False
+# For closing modal via query param
+if "close_modal" in st.query_params:
+    st.session_state.show_modal = False
+    st.query_params.pop("close_modal")
 
 # --- 3. Advanced CSS (Dynamic RTL/LTR + Professional Design) ---
 direction = "rtl" if is_ar else "ltr"
@@ -46,10 +50,14 @@ text_align = "right" if is_ar else "left"
 font_family = "'Tajawal', 'Segoe UI', Tahoma, sans-serif" if is_ar else "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
 
 def get_base64_image(image_path):
-    with open(image_path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        return ""  # fallback if image missing
 
 img_base64 = get_base64_image("background.jpg")
+
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Segoe+UI:wght@400;500;700&display=swap');
@@ -81,21 +89,14 @@ st.markdown(f"""
         border-right: 1px solid rgba(0,0,0,0.05);
     }}
 
-    /* Remove background from the logo column */
-    div[data-testid="column"]:first-child {{
+    /* Remove extra rectangles and backgrounds */
+    .stApp header,
+    .stApp .st-emotion-cache-1r6slb0,
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"] {{
         background: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
     }}
     
-    /* Remove extra white rectangles */
-    .stApp header {{
-        background: transparent !important;
-    }}
-    .stApp .st-emotion-cache-1r6slb0 {{
-        background: transparent !important;
-    }}
-
     /* Main Columns - subtle cards */
     [data-testid="stColumn"] {{
         background: rgba(255, 255, 255, 0.88);
@@ -431,7 +432,7 @@ def get_detailed_report(disease, temp, soil, water, conf, is_ar):
 </ul>
 <p><strong>3. المكافحة الحيوية:</strong> رش مستحضرات تحتوي على <em>Bacillus subtilis</em> (سيريناد) أو <em>Trichoderma</em> لتثبيط نمو الفطريات الممرضة.</p>"""
 
-        # Environmental Context Arabic (expanded)
+        # Environmental Context Arabic
         html += "<h4>🌍 عوامل الذكاء البيئي وتوصيات مكيفة:</h4>"
         if temp > 38:
             html += f"<p>⚠️ <strong>إجهاد حراري ({temp}°م):</strong> استخدام <strong>سليكات البوتاسيوم</strong> (2 مل/لتر) لتقوية جدر الخلايا وتقليل النتح. رش الأحماض الأمينية والجبرلين لتخفيف الإجهاد. زيادة الري ليلاً لتبريد منطقة الجذور.</p>"
@@ -549,7 +550,7 @@ def get_detailed_report(disease, temp, soil, water, conf, is_ar):
 </ul>
 <p><strong>3. Biological Control:</strong> Apply products containing <em>Bacillus subtilis</em> (Serenade) or <em>Trichoderma</em> to suppress fungal pathogens.</p>"""
 
-        # Environmental Context English (expanded)
+        # Environmental Context English
         html += "<h4>🌍 Environmental Intelligence Factors & Tailored Recommendations:</h4>"
         if temp > 38:
             html += f"<p>⚠️ <strong>Heat Stress ({temp}°C):</strong> Apply <strong>Potassium Silicate</strong> (2 ml/L) to strengthen cell walls and reduce transpiration. Spray amino acids and gibberellins to alleviate stress. Increase night irrigation to cool roots.</p>"
@@ -568,15 +569,6 @@ def get_detailed_report(disease, temp, soil, water, conf, is_ar):
 <p style="font-size: 0.9em;"><strong>Important Note:</strong> These recommendations are advisory. Always consult a certified agricultural engineer for precise dosages based on your field conditions and local regulations.</p>
 </div>"""
     return html
-
-# Logo and header – remove background
-col_logo, col_text = st.columns([1, 5])
-with col_logo:
-    try:
-        st.image("logo.png", width=140)
-    except:
-        pass
-# The rest of the header is handled by CSS; we don't need extra content here.
 
 # --- 7. App Layout ---
 st.title(ui["title"])
@@ -600,13 +592,9 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-        # Export PDF button
+        # Export PDF button (prints the page)
         if st.button(ui["export_pdf"], key="pdf_btn"):
-            st.markdown("""
-            <script>
-                window.print();
-            </script>
-            """, unsafe_allow_html=True)
+            st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
         
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
@@ -629,23 +617,32 @@ with c2:
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
                 st.session_state.saved_report = full_report
                 st.session_state.show_modal = True
-                
-                # Display modal (overlay) with close button using JavaScript
-                modal_html = f"""
-                <div id="modalOverlay" class="modal-overlay">
-                    <div class="modal-box">
-                        <div class="close-btn" onclick="document.getElementById('modalOverlay').style.display='none'">×</div>
-                        {full_report}
-                    </div>
-                </div>
-                """
-                st.markdown(modal_html, unsafe_allow_html=True)
+                # Force a rerun to display modal
+                st.rerun()
     
-    # Display the saved report in the main area if it exists
-    if st.session_state.saved_report:
+    # Show report in the main area if no modal is active
+    if st.session_state.saved_report and not st.session_state.show_modal:
         st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
-    else:
+    elif not st.session_state.saved_report:
         st.info(ui["wait"])
+
+# --- Modal overlay (displayed only if show_modal is True) ---
+if st.session_state.show_modal:
+    # Build modal HTML with close link that sets a query parameter
+    close_url = st.query_params.to_dict()
+    close_url["close_modal"] = "1"
+    # Construct the modal box HTML with a clickable close button that redirects to the same URL with close_modal param
+    modal_html = f"""
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <a href="?{'&'.join([f'{k}={v}' for k,v in close_url.items()])}" style="text-decoration: none;">
+                <div class="close-btn" style="cursor: pointer;">×</div>
+            </a>
+            {st.session_state.saved_report}
+        </div>
+    </div>
+    """
+    st.markdown(modal_html, unsafe_allow_html=True)
 
 st.markdown("---")
 st.caption(ui["footer"])
