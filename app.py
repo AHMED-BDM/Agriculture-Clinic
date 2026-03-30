@@ -112,6 +112,70 @@ st.markdown(f"""
         filter: drop-shadow(0px 4px 12px rgba(0,0,0,0.4));
     }}
 
+
+
+
+
+
+
+
+
+
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.4s ease forwards;
+    }
+
+    .modal-box {
+        width: 70%;
+        max-height: 85vh;
+        overflow-y: auto;
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 25px;
+        position: relative;
+        animation: scaleIn 0.4s ease forwards;
+        box-shadow: 0px 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .close-btn:hover {
+        color: red;
+        transform: scale(1.2);
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0;}
+        to {opacity: 1;}
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -366,7 +430,15 @@ with c2:
                 
                 # Detailed Report Rendering
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
-                st.markdown(f'<div class="report-container">{full_report}</div>', unsafe_allow_html=True)
+                modal_html = f"""
+<div class="modal-overlay" id="modal">
+    <div class="modal-box">
+        <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
+        {full_report}
+    </div>
+</div>
+"""
+st.markdown(modal_html, unsafe_allow_html=True)
     else:
         st.info(ui["wait"])
 
