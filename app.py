@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import base64
+
 # --- 1. Page Configuration ---
 st.set_page_config(page_title="Pro Ag-Clinic AI", page_icon="🌿", layout="wide")
 
@@ -43,7 +44,6 @@ direction = "rtl" if is_ar else "ltr"
 text_align = "right" if is_ar else "left"
 font_family = "'Tajawal', 'Segoe UI', Tahoma, sans-serif" if is_ar else "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
 
-
 def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
@@ -60,16 +60,39 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
+    /* جعل طبقة التغطية أكثر عتامة لتحسين قراءة النص */
     .stApp > div:first-child {{
-        background: rgba(255,255,255,0.4);
+        background: rgba(255, 255, 255, 0.85) !important;
+    }}
+
+    /* خلفية الشريط الجانبي */
+    .stSidebar {{
+        background: rgba(255, 255, 255, 0.92) !important;
+        backdrop-filter: blur(2px);
+    }}
+
+    /* خلفية الأعمدة الرئيسية */
+    [data-testid="stColumn"] {{
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }}
+
+    /* تحسين قراءة عناوين Streamlit */
+    .stMarkdown, .stSubheader, .stTitle, .stCaption {{
+        color: #111111 !important;
+        text-shadow: 0px 1px 1px rgba(255,255,255,0.5);
     }}
 
     html, body, [class*="css"] {{
         font-family: {font_family};
         direction: {direction};
         text-align: {text_align};
+        color: #111111 !important;
     }}
 
+    /* حاوية التقرير (تظل بيضاء بالكامل مع ظل) */
     .report-container {{
         background-color: #ffffff !important;
         color: #111111 !important;
