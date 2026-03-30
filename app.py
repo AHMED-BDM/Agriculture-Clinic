@@ -79,23 +79,26 @@ st.markdown(f"""
         margin: 0.5rem 0;
     }}
 
-    /* تحسين قراءة عناوين Streamlit */
-    .stMarkdown, .stSubheader, .stTitle, .stCaption {{
-        color: #0D1117 !important;
-        text-shadow: 0px 1px 1px rgba(255,255,255,0.5);
-    }}
-
+    /* جميع النصوص بالأسود الصريح */
+    .stMarkdown, .stSubheader, .stTitle, .stCaption,
+    .stAlert, .stInfo, .stSuccess, .stWarning, .stError,
+    .stSelectbox, .stSlider, .stTextInput, label,
     html, body, [class*="css"] {{
+        color: #000000 !important;
         font-family: {font_family};
         direction: {direction};
         text-align: {text_align};
-        color: #0D1117!important;
+    }}
+
+    /* عناوين sidebar */
+    .stSidebar .stMarkdown, .stSidebar .stSubheader {{
+        color: #000000 !important;
     }}
 
     /* حاوية التقرير (تظل بيضاء بالكامل مع ظل) */
     .report-container {{
         background-color: #ffffff !important;
-        color: #111111 !important;
+        color: #000000 !important;
         padding: 30px;
         border-radius: 15px;
         border-left: 12px solid #1b5e20;
