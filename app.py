@@ -95,7 +95,11 @@ st.markdown(f"""
         background: transparent !important;
     }}
     
-    /* Main Columns - subtle cards */
+    /* Main Columns - subtle cards, independent heights */
+    .row-widget.stHorizontal {{
+        align-items: flex-start !important;
+    }}
+    
     [data-testid="stColumn"] {{
         background: rgba(255, 255, 255, 0.88);
         border-radius: 24px;
@@ -103,10 +107,35 @@ st.markdown(f"""
         margin: 0.75rem 0;
         box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
+        height: auto !important;
+        align-self: flex-start;
     }}
     
     [data-testid="stColumn"]:hover {{
         box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+    }}
+
+    /* Report column - make it scrollable if content is tall */
+    .report-scrollable {{
+        max-height: 80vh;
+        overflow-y: auto;
+        padding-right: 10px;
+        margin-top: 1rem;
+        scrollbar-width: thin;
+    }}
+    
+    .report-scrollable::-webkit-scrollbar {{
+        width: 6px;
+    }}
+    
+    .report-scrollable::-webkit-scrollbar-track {{
+        background: #f1f1f1;
+        border-radius: 3px;
+    }}
+    
+    .report-scrollable::-webkit-scrollbar-thumb {{
+        background: #2e7d32;
+        border-radius: 3px;
     }}
 
     /* All text in black */
@@ -186,6 +215,7 @@ st.markdown(f"""
         border-radius: 20px;
         box-shadow: 0 12px 24px rgba(0,0,0,0.1);
         transition: transform 0.3s ease;
+        max-width: 100%;
     }}
     
     img:hover {{
@@ -207,7 +237,7 @@ st.markdown(f"""
         border-radius: 12px !important;
     }}
     
-    /* Print styles for PDF export (for the direct print button) */
+    /* Print styles for PDF export */
     @media print {{
         body * {{
             visibility: hidden;
@@ -556,13 +586,14 @@ with c2:
                 st.session_state.saved_report = full_report
                 st.session_state.analysis_done = True
                 # No rerun needed; report will be displayed below immediately
-                
+        
         # Show report if analysis was done
         if st.session_state.analysis_done and st.session_state.saved_report:
-            # Optional: add a small success message or note
             st.markdown("---")
             st.markdown("**📊 نتائج التحليل**" if is_ar else "**📊 Analysis Results**")
-            st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
+            
+            # Wrap report in scrollable container
+            st.markdown(f'<div class="report-scrollable">{st.session_state.saved_report}</div>', unsafe_allow_html=True)
             
             # Export buttons
             st.markdown("---")
