@@ -81,7 +81,7 @@ st.markdown(f"""
 
     /* تحسين قراءة عناوين Streamlit */
     .stMarkdown, .stSubheader, .stTitle, .stCaption {{
-        color: #000000 !important;
+        color: #0D1117 !important;
         text-shadow: 0px 1px 1px rgba(255,255,255,0.5);
     }}
 
@@ -89,7 +89,7 @@ st.markdown(f"""
         font-family: {font_family};
         direction: {direction};
         text-align: {text_align};
-        color: #000000!important;
+        color: #0D1117!important;
     }}
 
     /* حاوية التقرير (تظل بيضاء بالكامل مع ظل) */
