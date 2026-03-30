@@ -33,7 +33,9 @@ ui = {
     "wait": "في انتظار رفع صورة العينة للتشخيص..." if is_ar else "Awaiting leaf specimen for diagnosis...",
     "footer": "© 2026 النظم الزراعية الذكية | قسم الزراعة الدقيقة" if is_ar else "© 2026 Smart Agri-Systems | Expert Module | Precision Agriculture Division",
     "download_report": "تحميل التقرير (HTML)" if is_ar else "Download Report (HTML)",
-    "print_report": "طباعة التقرير" if is_ar else "Print Report"
+    "print_report": "طباعة التقرير" if is_ar else "Print Report",
+    "unknown_title": "⚠️ عينة غير معروفة" if is_ar else "⚠️ Unknown Specimen",
+    "unknown_msg": "لم يتمكن النموذج من التعرف على هذه الصورة ضمن الفئات المدربة. يرجى التأكد من أن الصورة تظهر ورقة نبات بشكل واضح وتنتمي إلى أحد المحاصيل المدعومة (فلفل، بطاطس، طماطم). يمكنك تجربة صورة أخرى أو الاتصال بالدعم الفني." if is_ar else "The model could not recognize this image among the trained categories. Please ensure the image clearly shows a plant leaf and belongs to one of the supported crops (pepper, potato, tomato). You can try another image or contact technical support."
 }
 
 # Initialize session state
@@ -41,6 +43,9 @@ if "saved_report" not in st.session_state:
     st.session_state.saved_report = ""
 if "analysis_done" not in st.session_state:
     st.session_state.analysis_done = False
+
+# Confidence threshold for unknown detection
+CONFIDENCE_THRESHOLD = 0.6
 
 # --- 3. Advanced CSS (Dynamic RTL/LTR + Professional Design) ---
 direction = "rtl" if is_ar else "ltr"
@@ -300,8 +305,66 @@ arabic_classes = {
     "Tomato_healthy": "طماطم - سليم"
 }
 
+# Add unknown class to translation
+arabic_classes["UNKNOWN"] = "غير معروف"
+
 # --- 6. Detailed Agronomic Logic (Bilingual, Professional) ---
 def get_detailed_report(disease, temp, soil, water, conf, is_ar):
+    if disease == "UNKNOWN":
+        # Special report for unknown images
+        if is_ar:
+            html = f"""<div class="report-container">
+<h2 style="text-align: center;">📋 تقرير العيادة الزراعية المعتمد</h2>
+<p style="text-align: center; opacity:0.7;">المهندس الزراعي المعتمد: أحمد عبد الحافظ</p>
+<hr>
+<p><strong>التشخيص الأساسي:</strong> {arabic_classes["UNKNOWN"]}</p>
+<p><strong>دقة النموذج الإحصائي:</strong> {conf*100:.2f}%</p>
+<hr>
+<h3>⚠️ لم يتم التعرف على العينة</h3>
+<p>لم يستطع النموذج تصنيف هذه الصورة ضمن الفئات المدربة. الأسباب المحتملة:</p>
+<ul>
+<li>الصورة لا تظهر ورقة نبات بشكل واضح.</li>
+<li>النبات غير مدعوم (الفئات المدعومة: فلفل، بطاطس، طماطم).</li>
+<li>الصورة غير واضحة أو تحتوي على ضوضاء.</li>
+<li>الإصابة غير نمطية أو أن الورقة تالفة بشدة.</li>
+</ul>
+<p><strong>التوصيات:</strong></p>
+<ul>
+<li>تأكد من أن الصورة تركز على ورقة واحدة مع إضاءة جيدة.</li>
+<li>حاول رفع صورة أخرى تظهر الأعراض بوضوح.</li>
+<li>إذا استمرت المشكلة، يرجى التواصل مع فريق الدعم الفني.</li>
+</ul>
+<hr>
+<p style="font-style: italic;"><strong>القرار الهندسي النهائي:</strong> الثقة منخفضة جدًا، لا يمكن تقديم توصيات علاجية. يُرجى التأكد من صحة العينة.</p>
+</div>"""
+        else:
+            html = f"""<div class="report-container">
+<h2 style="text-align: center;">📋 CERTIFIED AGRICULTURE CLINIC REPORT</h2>
+<p style="text-align: center; opacity:0.7;">Certified Agricultural Engineer: Ahmed Abd Al-Hafez</p>
+<hr>
+<p><strong>Primary Diagnosis:</strong> Unknown / Unrecognized</p>
+<p><strong>Statistical Confidence:</strong> {conf*100:.2f}%</p>
+<hr>
+<h3>⚠️ Specimen Not Recognized</h3>
+<p>The model could not classify this image among the trained categories. Possible reasons:</p>
+<ul>
+<li>The image does not clearly show a plant leaf.</li>
+<li>The plant is not supported (supported crops: pepper, potato, tomato).</li>
+<li>The image is blurry or contains noise.</li>
+<li>The infection is atypical or the leaf is severely damaged.</li>
+</ul>
+<p><strong>Recommendations:</strong></p>
+<ul>
+<li>Ensure the image focuses on a single leaf with good lighting.</li>
+<li>Try uploading another image that clearly shows the symptoms.</li>
+<li>If the problem persists, please contact technical support.</li>
+</ul>
+<hr>
+<p style="font-style: italic;"><strong>Final Engineering Verdict:</strong> Confidence is too low to provide treatment recommendations. Please verify the sample.</p>
+</div>"""
+        return html
+
+    # Existing detailed report for known diseases
     disease_en = disease.replace("_", " ")
     disease_ar = arabic_classes.get(disease, disease_en)
     
@@ -577,15 +640,19 @@ with c2:
                 best_conf = float(np.max(raw_preds))
                 label = class_names[best_idx]
                 
-                # Success message
-                identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
-                st.success(f"{identified_text} ✓")
+                # Check confidence threshold
+                if best_conf < CONFIDENCE_THRESHOLD:
+                    label = "UNKNOWN"
+                    identified_text = "⚠️ " + ("غير معروف" if is_ar else "Unknown")
+                    st.warning(identified_text + " - " + ui["unknown_msg"])
+                else:
+                    identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
+                    st.success(f"{identified_text} ✓")
                 
                 # Generate full report
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
                 st.session_state.saved_report = full_report
                 st.session_state.analysis_done = True
-                # No rerun needed; report will be displayed below immediately
         
         # Show report if analysis was done
         if st.session_state.analysis_done and st.session_state.saved_report:
