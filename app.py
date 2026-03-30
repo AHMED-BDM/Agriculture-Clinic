@@ -19,7 +19,7 @@ with st.sidebar:
         logo = Image.open(r"C:\Users\Admin\Downloads\cd658e2d-2bc7-4014-adbf-ddf32587ae42.png") 
         st.image(logo, use_container_width=True)
     except:
-        st.error("⚠️ لم يتم العثور على ملف "C:\Users\Admin\Downloads\cd658e2d-2bc7-4014-adbf-ddf32587ae42.png"")
+        st.error(r"⚠️ لم يتم العثور على ملف C:\Users\Admin\Downloads\cd658e2d-2bc7-4014-adbf-ddf32587ae42.png")
         
     st.title("🌐 Language / اللغة")
     lang = st.radio("Choose Interface Language:", ["English", "العربية"])
