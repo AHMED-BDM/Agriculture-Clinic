@@ -32,6 +32,12 @@ ui = {
     "footer": "© 2026 النظم الزراعية الذكية | قسم الزراعة الدقيقة" if is_ar else "© 2026 Smart Agri-Systems | Expert Module | Precision Agriculture Division"
 }
 
+# --- Initialize session state variables early ---
+if "saved_report" not in st.session_state:
+    st.session_state.saved_report = ""
+if "show_modal" not in st.session_state:
+    st.session_state.show_modal = False
+
 # --- 3. Advanced CSS (Dynamic RTL/LTR + Background) ---
 direction = "rtl" if is_ar else "ltr"
 text_align = "right" if is_ar else "left"
@@ -387,10 +393,6 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-        if "show_modal" not in st.session_state:
-            st.session_state.show_modal = False
-        if "saved_report" not in st.session_state:
-            st.session_state.saved_report = ""
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
                 # Process
@@ -424,20 +426,7 @@ with c2:
                 """
                 st.markdown(modal_html, unsafe_allow_html=True)
 
-
-
-            if False and st.session_state.show_modal and st.session_state.saved_report:
-                modal_html = f"""
-                <div class="modal-overlay" id="modal">
-                    <div class="modal-box">
-                        <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
-                        {st.session_state.saved_report}
-                        </div>
-                    </div>
-                    """
-                st.markdown(modal_html, unsafe_allow_html=True)
-
-                # عرض التقرير في الصفحة بعد إغلاق البوبب
+    # Display the saved report in the main area if it exists
     if st.session_state.saved_report:
         st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
     else:
