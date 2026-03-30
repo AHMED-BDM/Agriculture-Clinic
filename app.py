@@ -411,7 +411,7 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-      if st.button(ui["btn_analyze"]):
+    if st.button(ui["btn_analyze"]):
        with st.spinner(ui["spinner"]):
         # Process
         proc_img = img.convert("RGB").resize((224, 224))
@@ -438,7 +438,7 @@ with c2:
         </div>
         """
         st.markdown(modal_html, unsafe_allow_html=True)
-      else:
+    else:
         st.info(ui["wait"])
 
 st.markdown("---")
