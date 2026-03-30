@@ -48,7 +48,7 @@ def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
-img_base64 = get_base64_image("background.jpeg")
+img_base64 = get_base64_image("background.jpg")
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
