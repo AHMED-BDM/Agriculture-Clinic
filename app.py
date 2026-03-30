@@ -47,18 +47,17 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
     
+    .stApp {{
+        background-image: url('background.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
 
-     .stApp {
-        background: linear-gradient(270deg, #00c6ff, #0072ff, #00c6ff);
-        background-size: 600% 600%;
-        animation: gradientMove 10s ease infinite;
-    }
+    .stApp > div:first-child {{
+        background: rgba(255,255,255,0.4);
+    }}
 
-    @keyframes gradientMove {
-        0% {background-position: 0% 50%;}
-        50% {background-position: 100% 50%;}
-        100% {background-position: 0% 50%;}
-    }
     html, body, [class*="css"] {{
         font-family: {font_family};
         direction: {direction};
