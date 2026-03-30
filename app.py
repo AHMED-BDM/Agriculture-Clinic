@@ -581,15 +581,25 @@ with c2:
                 st.session_state.show_modal = True
                 
                 # Display modal (overlay)
-                modal_html = f"""
-                <div class="modal-overlay" id="modal" onclick="if(event.target.id=='modal') this.style.display='none'">
-                    <div class="modal-box">
-                        <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
-                        {full_report}
-                    </div>
-                </div>
-                """
-                st.markdown(modal_html, unsafe_allow_html=True)
+if st.session_state.show_modal:
+    # زرار الإغلاق
+    col_close = st.columns([10, 1])[1]
+    with col_close:
+        if st.button("✕", key="close_modal"):
+            st.session_state.show_modal = False
+            st.rerun()
+
+    # عرض التقرير في شكل modal
+    st.markdown(f"""
+    <div class="modal-overlay">
+        <div class="modal-box">
+            {st.session_state.saved_report}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+
     
     # Display the saved report in the main area if it exists
     if st.session_state.saved_report:
