@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import base64
+import datetime
 
 # --- 1. Page Configuration ---
 st.set_page_config(page_title="Pro Ag-Clinic AI", page_icon="🌿", layout="wide")
@@ -31,7 +32,9 @@ ui = {
     "spinner": "جاري استدعاء قاعدة البيانات الزراعية..." if is_ar else "Accessing Agricultural Knowledge Base...",
     "wait": "في انتظار رفع صورة العينة للتشخيص..." if is_ar else "Awaiting leaf specimen for diagnosis...",
     "footer": "© 2026 النظم الزراعية الذكية | قسم الزراعة الدقيقة" if is_ar else "© 2026 Smart Agri-Systems | Expert Module | Precision Agriculture Division",
-    "export_pdf": "تصدير PDF" if is_ar else "Export PDF"
+    "export_pdf": "تصدير PDF" if is_ar else "Export PDF",
+    "download_report": "تحميل التقرير (HTML)" if is_ar else "Download Report (HTML)",
+    "print_report": "طباعة التقرير" if is_ar else "Print Report"
 }
 
 # Initialize session state
@@ -39,10 +42,8 @@ if "saved_report" not in st.session_state:
     st.session_state.saved_report = ""
 if "show_modal" not in st.session_state:
     st.session_state.show_modal = False
-# For closing modal via query param
-if "close_modal" in st.query_params:
-    st.session_state.show_modal = False
-    st.query_params.pop("close_modal")
+if "last_analysis" not in st.session_state:
+    st.session_state.last_analysis = {}  # store params to regenerate report if needed
 
 # --- 3. Advanced CSS (Dynamic RTL/LTR + Professional Design) ---
 direction = "rtl" if is_ar else "ltr"
@@ -54,7 +55,7 @@ def get_base64_image(image_path):
         with open(image_path, "rb") as img_file:
             return base64.b64encode(img_file.read()).decode()
     except FileNotFoundError:
-        return ""  # fallback if image missing
+        return ""
 
 img_base64 = get_base64_image("background.jpg")
 
@@ -266,7 +267,7 @@ st.markdown(f"""
         border-radius: 12px !important;
     }}
     
-    /* Print styles for PDF export */
+    /* Print styles for PDF export (for the direct print button) */
     @media print {{
         body * {{
             visibility: hidden;
@@ -592,10 +593,43 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-        # Export PDF button (prints the page)
-        if st.button(ui["export_pdf"], key="pdf_btn"):
-            st.markdown("<script>window.print();</script>", unsafe_allow_html=True)
+        # Custom PDF export buttons: Download HTML and Print
+        if st.session_state.saved_report:
+            col_btn1, col_btn2 = st.columns(2)
+            with col_btn1:
+                # Download HTML button
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"agri_report_{timestamp}.html"
+                st.download_button(
+                    label=ui["download_report"],
+                    data=st.session_state.saved_report,
+                    file_name=filename,
+                    mime="text/html",
+                    key="download_html"
+                )
+            with col_btn2:
+                # Direct print button using JavaScript
+                print_js = f"""
+                <script>
+                function printReport() {{
+                    var reportHTML = `{st.session_state.saved_report}`;
+                    var printWindow = window.open('', '_blank');
+                    printWindow.document.write('<html><head><title>Agriculture Report</title>');
+                    printWindow.document.write('<style>body {{ font-family: sans-serif; padding: 2rem; }} .report-container {{ max-width: 1000px; margin: auto; }}</style>');
+                    printWindow.document.write('</head><body>');
+                    printWindow.document.write(reportHTML);
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();
+                    printWindow.print();
+                }}
+                </script>
+                <button onclick="printReport()" style="width:100%; background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; font-size: 1.1rem; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 40px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                    {ui["print_report"]}
+                </button>
+                """
+                st.markdown(print_js, unsafe_allow_html=True)
         
+        # Analysis button
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
                 # Process image
@@ -631,7 +665,6 @@ if st.session_state.show_modal:
     # Build modal HTML with close link that sets a query parameter
     close_url = st.query_params.to_dict()
     close_url["close_modal"] = "1"
-    # Construct the modal box HTML with a clickable close button that redirects to the same URL with close_modal param
     modal_html = f"""
     <div id="modalOverlay" class="modal-overlay">
         <div class="modal-box">
