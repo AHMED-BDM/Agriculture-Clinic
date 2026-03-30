@@ -161,21 +161,21 @@ st.markdown(f"""
         transform: scale(1.2);
     }
 
-    @keyframes fadeIn {
-        from {opacity: 0;}
-        to {opacity: 1;}
-    }
+    @keyframes fadeIn {{
+        from {{opacity: 0;}}
+        to {{opacity: 1;}}
+    }}
 
-    @keyframes scaleIn {
-        from {
+    @keyframes scaleIn {{
+        from {{
             transform: scale(0.8);
             opacity: 0;
-        }
-        to {
+        }}
+        to {{
             transform: scale(1);
             opacity: 1;
-        }
-    }
+        }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
