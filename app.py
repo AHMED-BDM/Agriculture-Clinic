@@ -2,6 +2,7 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
+import os
 
 # --- 1. Page Configuration ---
 st.set_page_config(page_title="Pro Ag-Clinic AI", page_icon="🌿", layout="wide")
@@ -14,12 +15,14 @@ if 'last_file' not in st.session_state:
 
 # --- 3. Language Setup ---
 with st.sidebar:
-    # إضافة اللوجو في القائمة الجانبية
+    # --- تعديل 1: إضافة اللوجو من المستودع مباشرة ---
     try:
-        logo = Image.open(r"C:\Users\Admin\Downloads\cd658e2d-2bc7-4014-adbf-ddf32587ae42.png") 
+        # بناءً على صورة المستودع، الملف اسمه logo.png في المجلد الرئيسي
+        logo = Image.open("logo.png") 
         st.image(logo, use_container_width=True)
     except:
-        st.error(r"⚠️ لم يتم العثور على ملف C:\Users\Admin\Downloads\cd658e2d-2bc7-4014-adbf-ddf32587ae42.png")
+        # رسالة خطأ بالإنجليزية لضمان عمل الواجهة إذا لم تتوفر الصورة
+        st.error("Error: 'logo.png' not found in root directory.")
         
     st.title("🌐 Language / اللغة")
     lang = st.radio("Choose Interface Language:", ["English", "العربية"])
@@ -41,17 +44,34 @@ ui = {
 }
 
 # --- 4. Advanced CSS ---
+# --- تعديل 2: إضافة صورة الخلفية على كامل الصفحة ---
 direction = "rtl" if is_ar else "ltr"
+text_align = "right" if is_ar else "left"
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+    
+    /* جعل صورة الخلفية على كامل الصفحة */
+    .stApp {{
+        /* اسم الملف بناءً على صورة المستودع: background..jpeg */
+        background-image: url('background..jpeg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    
+    /* تفتيح شفاف فوق الخلفية لجعل الكروت بارزة */
+    .stApp > div {{
+        background-color: rgba(255, 255, 255, 0.4);
+    }}
+
     html, body, [class*="css"] {{
         font-family: 'Tajawal', sans-serif;
         direction: {direction};
-        text-align: {"right" if is_ar else "left"};
+        text-align: {text_align};
     }}
     .report-container {{
-        background-color: white;
+        background-color: rgba(255, 255, 255, 0.95); /* كارت أبيض شبه شفاف */
         padding: 25px;
         border-radius: 15px;
         border-right: 12px solid #1b5e20;
@@ -65,6 +85,7 @@ st.markdown(f"""
 # --- 5. Model & Logic (Simplified for brevity) ---
 @st.cache_resource
 def load_model():
+    # سيتم تحميله من المستودع مباشرة
     return tf.keras.models.load_model('Fplant_model.keras')
 
 model = load_model()
@@ -76,6 +97,7 @@ class_names = ["Pepper__bell___Bacterial_spot", "Pepper__bell___healthy", "Potat
 head_col1, head_col2 = st.columns([1, 4])
 with head_col1:
     try:
+        # هذا السطر كان صحيحاً بالفعل في كودك الأصلي
         st.image("logo.png", width=150)
     except: pass
 with head_col2:
@@ -125,6 +147,7 @@ with c2:
             label_display = res["label"].replace("_", " ")
             conf_val = res["conf"] * 100
             
+            # ملاحظة للمستخدم: لإظهار هذا النص بتنسيق صحيح وليس كأكواد، تأكد من وجود `unsafe_allow_html=True` في دالة st.markdown النهائية
             st.markdown(f"""
             <div class="report-container">
                 <h3 style="color:#1b5e20;">التشخيص: {label_display}</h3>
