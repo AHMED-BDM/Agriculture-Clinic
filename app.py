@@ -126,7 +126,7 @@ def get_detailed_report(disease, temp, soil, water, conf, is_ar):
     if is_ar:
         html = f"""<div class="report-container">
 <h2 style="text-align: center;">تقرير العيادة الزراعية المعتمد</h2>
-<p style="text-align: center;">تم الإنشاء بواسطة المهندس/ أحمد عبد الحفيظ</p>
+<p style="text-align: center;">تم الإنشاء بواسطة المهندس/ أحمد عبد الحافظ</p>
 <hr>
 <p><b>التشخيص الأساسي:</b> {disease_ar}</p>
 <p><b>دقة التشخيص الإحصائي:</b> {conf*100:.2f}%</p>
