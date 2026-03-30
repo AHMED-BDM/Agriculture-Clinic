@@ -126,7 +126,7 @@ def get_detailed_report(disease, temp, soil, water, conf, is_ar):
     if is_ar:
         html = f"""<div class="report-container">
 <h2 style="text-align: center;">تقرير العيادة الزراعية المعتمد</h2>
-<p style="text-align: center;">تم الإنشاء بواسطة المهندس/ أحمد عبد الحافظ</p>
+<p style="text-align: center;">تم الإنشاء بواسطة المهندس/ أحمد عبد الحفيظ</p>
 <hr>
 <p><b>التشخيص الأساسي:</b> {disease_ar}</p>
 <p><b>دقة التشخيص الإحصائي:</b> {conf*100:.2f}%</p>
@@ -297,38 +297,61 @@ with c1:
     
     with st.expander(ui["env_expander"]):
         t_input = st.slider(ui["temp"], 0, 55, 26)
-        
-        # Determine current index based on language to avoid selectbox mapping errors
         s_input_raw = st.selectbox(ui["soil_label"], ui["soil_options"])
         w_input_raw = st.selectbox(ui["water_label"], ui["water_options"])
 
 with c2:
     st.subheader(ui["report_header"])
+    
+    # -------------------------------------------------------------
+    # Session State Management (This solves the disappearing issue)
+    # -------------------------------------------------------------
+    if 'analysis_done' not in st.session_state:
+        st.session_state.analysis_done = False
+        st.session_state.pred_label = ""
+        st.session_state.pred_conf = 0.0
+        st.session_state.last_file = None
+
     if uploaded_file:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
+        # Reset analysis state if the user uploads a NEW image
+        if st.session_state.last_file != uploaded_file.name:
+            st.session_state.analysis_done = False
+            st.session_state.last_file = uploaded_file.name
+        
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
-                # Process
+                # Process Image
                 proc_img = img.convert("RGB").resize((224, 224))
                 img_array = np.array(proc_img) / 255.0
                 img_array = np.expand_dims(img_array, axis=0)
                 
-                # Predict
+                # Model Prediction
                 raw_preds = model.predict(img_array, verbose=0)
-                best_idx = np.argmax(raw_preds)
-                best_conf = float(np.max(raw_preds))
-                label = class_names[best_idx]
                 
-                # Success Info
-                identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
-                st.success(f"{identified_text} ✓")
+                # Save results to session state
+                st.session_state.pred_label = class_names[np.argmax(raw_preds)]
+                st.session_state.pred_conf = float(np.max(raw_preds))
+                st.session_state.analysis_done = True
                 
-                # Detailed Report Rendering
-                full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
-                st.markdown(full_report, unsafe_allow_html=True)
+        # If analysis was done, display the report (survives language/slider changes)
+        if st.session_state.analysis_done:
+            label = st.session_state.pred_label
+            best_conf = st.session_state.pred_conf
+            
+            # Show Success Label
+            identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
+            st.success(f"{identified_text} ✓")
+            
+            # Render the report dynamically
+            full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
+            st.markdown(full_report, unsafe_allow_html=True)
+            
     else:
+        # Clear state if image is removed
+        st.session_state.analysis_done = False
         st.info(ui["wait"])
 
 st.markdown("---")
