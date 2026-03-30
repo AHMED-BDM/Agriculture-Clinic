@@ -2,7 +2,7 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-
+import base64
 # --- 1. Page Configuration ---
 st.set_page_config(page_title="Pro Ag-Clinic AI", page_icon="🌿", layout="wide")
 
@@ -43,6 +43,12 @@ direction = "rtl" if is_ar else "ltr"
 text_align = "right" if is_ar else "left"
 font_family = "'Tajawal', 'Segoe UI', Tahoma, sans-serif" if is_ar else "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
 
+
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+img_base64 = get_base64_image("background.jpeg")
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
