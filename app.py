@@ -42,8 +42,13 @@ if "saved_report" not in st.session_state:
     st.session_state.saved_report = ""
 if "show_modal" not in st.session_state:
     st.session_state.show_modal = False
-if "last_analysis" not in st.session_state:
-    st.session_state.last_analysis = {}  # store params to regenerate report if needed
+
+# Close modal if query param is set
+if "close_modal" in st.query_params:
+    st.session_state.show_modal = False
+    # Remove the param to keep URL clean
+    st.query_params.pop("close_modal")
+    st.rerun()
 
 # --- 3. Advanced CSS (Dynamic RTL/LTR + Professional Design) ---
 direction = "rtl" if is_ar else "ltr"
@@ -210,7 +215,8 @@ st.markdown(f"""
         box-shadow: 0 30px 40px rgba(0,0,0,0.3);
     }}
     
-    .close-btn {{
+    /* Custom close button inside modal */
+    .modal-close-btn {{
         position: absolute;
         top: 1rem;
         right: 1.5rem;
@@ -228,9 +234,11 @@ st.markdown(f"""
         justify-content: center;
         border-radius: 50%;
         z-index: 10000;
+        border: none;
+        font-family: monospace;
     }}
     
-    .close-btn:hover {{
+    .modal-close-btn:hover {{
         color: #d32f2f;
         background: rgba(0,0,0,0.1);
         transform: rotate(90deg);
@@ -609,10 +617,12 @@ with c2:
                 )
             with col_btn2:
                 # Direct print button using JavaScript
+                # Escape backticks and quotes for safe embedding
+                escaped_report = st.session_state.saved_report.replace('`', '\\`').replace('${', '\\${')
                 print_js = f"""
                 <script>
                 function printReport() {{
-                    var reportHTML = `{st.session_state.saved_report}`;
+                    var reportHTML = `{escaped_report}`;
                     var printWindow = window.open('', '_blank');
                     printWindow.document.write('<html><head><title>Agriculture Report</title>');
                     printWindow.document.write('<style>body {{ font-family: sans-serif; padding: 2rem; }} .report-container {{ max-width: 1000px; margin: auto; }}</style>');
@@ -662,15 +672,11 @@ with c2:
 
 # --- Modal overlay (displayed only if show_modal is True) ---
 if st.session_state.show_modal:
-    # Build modal HTML with close link that sets a query parameter
-    close_url = st.query_params.to_dict()
-    close_url["close_modal"] = "1"
+    # Build modal HTML with a custom close button that sets the close_modal query param
     modal_html = f"""
     <div id="modalOverlay" class="modal-overlay">
         <div class="modal-box">
-            <a href="?{'&'.join([f'{k}={v}' for k,v in close_url.items()])}" style="text-decoration: none;">
-                <div class="close-btn" style="cursor: pointer;">×</div>
-            </a>
+            <button class="modal-close-btn" onclick="window.location.href='?close_modal=1';">×</button>
             {st.session_state.saved_report}
         </div>
     </div>
