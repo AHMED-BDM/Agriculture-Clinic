@@ -16,10 +16,10 @@ if 'last_file' not in st.session_state:
 with st.sidebar:
     # إضافة اللوجو في القائمة الجانبية
     try:
-        logo = Image.open("logo.png") # تأكد من تسمية الصورة logo.png
+        logo = Image.open(""C:\Users\Admin\Downloads\cd658e2d-2bc7-4014-adbf-ddf32587ae42.png"") 
         st.image(logo, use_container_width=True)
     except:
-        st.error("⚠️ لم يتم العثور على ملف logo.png")
+        st.error("⚠️ لم يتم العثور على ملف "C:\Users\Admin\Downloads\cd658e2d-2bc7-4014-adbf-ddf32587ae42.png"")
         
     st.title("🌐 Language / اللغة")
     lang = st.radio("Choose Interface Language:", ["English", "العربية"])
