@@ -388,6 +388,10 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
+        if "show_modal" not in st.session_state:
+            st.session_state.show_modal = False
+        if "saved_report" not in st.session_state:
+            st.session_state.saved_report = ""
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
                 # Process
@@ -407,6 +411,10 @@ with c2:
                 
                 # Detailed Report Rendering
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
+                
+                st.session_state.show_modal = True
+                st.session_state.saved_report = full_report
+                
                 modal_html = f"""
                 <div class="modal-overlay" id="modal" onclick="if(event.target.id=='modal') this.style.display='none'">
                     <div class="modal-box">
@@ -416,6 +424,23 @@ with c2:
                 </div>
                 """
                 st.markdown(modal_html, unsafe_allow_html=True)
+
+
+
+    if st.session_state.show_modal and st.session_state.saved_report:
+    modal_html = f"""
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
+            {st.session_state.saved_report}
+        </div>
+    </div>
+    """
+    st.markdown(modal_html, unsafe_allow_html=True)
+
+# عرض التقرير في الصفحة بعد إغلاق البوبب
+if st.session_state.saved_report:
+    st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
     else:
         st.info(ui["wait"])
 
