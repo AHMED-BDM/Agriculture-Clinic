@@ -81,23 +81,19 @@ st.markdown(f"""
         border-right: 1px solid rgba(0,0,0,0.05);
     }}
 
-    /* Remove background from the logo column and the empty top area */
+    /* Remove background from the logo column */
     div[data-testid="column"]:first-child {{
         background: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }}
     
-    /* Remove extra white rectangles (header area) */
+    /* Remove extra white rectangles */
     .stApp header {{
         background: transparent !important;
     }}
     .stApp .st-emotion-cache-1r6slb0 {{
         background: transparent !important;
-    }}
-    /* Remove the extra empty top margin */
-    .block-container {{
-        padding-top: 1rem !important;
     }}
 
     /* Main Columns - subtle cards */
@@ -185,7 +181,7 @@ st.markdown(f"""
         transform: scale(1.02);
     }}
     
-    /* Modal overlay (will be shown via session state, not HTML-only) */
+    /* Modal overlay */
     .modal-overlay {{
         position: fixed;
         top: 0; left: 0;
@@ -333,23 +329,254 @@ arabic_classes = {
 }
 
 # --- 6. Detailed Agronomic Logic (Bilingual, Professional) ---
-# (نفس الكود السابق – لم يتغير – اختصرته هنا للمساحة، لكن يجب الاحتفاظ به كاملاً)
-# ... [تم حفظ الدالة كما هي في الكود الأصلي، أنا لا أعيد كتابتها بالكامل هنا تجنباً للطول، لكنها موجودة في الملف النهائي]
-
-# *** ملاحظة: سأضع الدالة هنا مختصرة جداً للإشارة، لكن في الكود النهائي يجب أن تكون كاملة كما كانت ***
 def get_detailed_report(disease, temp, soil, water, conf, is_ar):
-    # نفس المحتوى السابق (لا داعي لتكراره هنا)
-    pass
+    disease_en = disease.replace("_", " ")
+    disease_ar = arabic_classes.get(disease, disease_en)
+    
+    if is_ar:
+        html = f"""<div class="report-container">
+<h2 style="text-align: center;">📋 تقرير العيادة الزراعية المعتمد</h2>
+<p style="text-align: center; opacity:0.7;">المهندس الزراعي المعتمد: أحمد عبد الحافظ</p>
+<hr>
+<p><strong>التشخيص الأساسي:</strong> {disease_ar}</p>
+<p><strong>دقة النموذج الإحصائي:</strong> {conf*100:.2f}%</p>
+<p><strong>الظروف الحقلية المسجلة:</strong> درجة الحرارة: {temp}°C | نوع التربة: {soil} | مستوى الري: {water}</p>
+<hr>"""
 
-# (يُرجى عند النسخ وضع الدالة الكاملة من الكود السابق هنا)
+        if "healthy" in disease:
+            html += """
+<h3>✅ التقييم الفسيولوجي – سليم</h3>
+<p>العينة المدروسة تظهر <strong>كفاءة تمثيل ضوئي ممتازة</strong> وغياب أي علامات إجهاد حيوي أو غير حيوي. الجهاز الوعائي يعمل بكفاءة عالية.</p>
+<h4>📌 توصيات إستراتيجية للحفاظ على الصحة النباتية:</h4>
+<ul>
+<li><strong>التوازن الغذائي الدقيق:</strong> الحفاظ على نسب N-P-K متوازنة (1:1:1 خلال النمو الخضري، ثم 1:2:2 بعد التزهير). التركيز على إضافة الكالسيوم (نترات الكالسيوم 2-3 كجم/1000 م²) والبورون (حمض البوريك 0.5-1 جم/لتر) لضمان جودة الثمار.</li>
+<li><strong>المنشطات الحيوية:</strong> تطبيق الأحماض الأمينية (1 لتر/فدان) وهيمات البوتاسيوم (2-3 كجم/فدان) لتحسين امتصاص الجذور وزيادة مقاومة الإجهادات البيئية.</li>
+<li><strong>المراقبة الوقائية:</strong> الفحص الحقل المنتظم كل 48 ساعة لاكتشاف أي تجمعات مبكرة للآفات. استخدام المصائد اللاصقة الصفراء (15-20 مصيدة/فدان) لمراقبة الذبابة البيضاء والمن. تركيب شبكات حشرية (50 ميكرون) على مداخل الصوبات.</li>
+<li><strong>إدارة الري:</strong> الري بالتنقيط للحفاظ على جفاف الأوراق. الري صباحاً للسماح بتبخر الرطوبة. في الأراضي الثقيلة، إدخال فترات جفاف بين الريات لتهوية الجذور وتجنب الإجهاد الناتج عن نقص الأكسجين.</li>
+<li><strong>توصيات مستقبلية:</strong> تحليل التربة سنوياً لتعديل برامج التسميد. اعتماد أصناف مقاومة للأمراض السائدة في الموسم التالي.</li>
+</ul>"""
+        elif "Late_blight" in disease:
+            html += """
+<h3>🚨 إنذار مرضي – الندوة المتأخرة (Phytophthora infestans)</h3>
+<p><strong>المسبب:</strong> فطر بيضي (Oomycete) يتطور بسرعة في الرطوبة الجوية &gt;90% ودرجات حرارة معتدلة (15-25°م). يمكنه القضاء على الحقل بالكامل خلال 7-10 أيام في الظروف الملائمة.</p>
+<p><strong>الأعراض التفصيلية:</strong> بقع مائية خضراء داكنة على الأوراق، تتحول إلى بنية سوداء مع هالة صفراء. على الساق تظهر بقع بنية مستطيلة. في الأجواء الرطبة، ينمو عشب أبيض (الجراثيم) على السطح السفلي للأوراق. الثمار تصاب ببقع بنية زيتية لامعة.</p>
+<h4>🛠️ خطة المكافحة المتكاملة (الطوارئ):</h4>
+<p><strong>1. التدخل الكيميائي العاجل (بالتناوب لتجنب المقاومة):</strong></p>
+<ul>
+<li><strong>ميتالاكسيل-إم + مانكوزيب</strong> (ريدوميل جولد) 250 جم/100 لتر – وقائي وعلاجي مبكر.</li>
+<li><strong>سيموكسانيل + فاموكسادون</strong> (تاكوس) – تأثير علاجي قوي.</li>
+<li><strong>بروباموكارب هيدروكلوريد</strong> (بروليفي) 150 مل/100 لتر – يحمي الجذور والساق.</li>
+<li><strong>فوسيتيل-ألومنيوم</strong> (أليت) 200 جم/100 لتر – منشط مناعي.</li>
+<li><strong>الرش كل 5-7 أيام، بالتناوب، مع مادة لاصقة (سيلكيت 0.5 مل/لتر).</strong></li>
+</ul>
+<p><strong>2. الإدارة الحقلية:</strong></p>
+<ul>
+<li><strong>الرطوبة:</strong> وقف الري بالرش فوراً، التحول إلى الري بالتنقيط، زيادة التهوية في الصوب.</li>
+<li><strong>النظافة:</strong> قلع النباتات المصابة بشدة وحرقها خارج الحقل. تطهير الأدوات بالكحول 70% أو هيبوكلوريت الصوديوم.</li>
+<li><strong>الدورة الزراعية:</strong> عدم زراعة محاصيل العائلة الباذنجانية (بطاطس، طماطم، فلفل) في نفس الحقل لمدة 3 سنوات على الأقل.</li>
+</ul>
+<p><strong>3. المكافحة الحيوية:</strong> رش مستحضرات تحتوي على <em>Trichoderma harzianum</em> أو <em>Bacillus subtilis</em> للحد من استمرار الفطر في التربة.</p>"""
+        elif "Spider_mites" in disease:
+            html += """
+<h3>🕷️ تحليل الآفة – العنكبوت الأحمر ذو البقعتين (Tetranychus urticae)</h3>
+<p><strong>الملاحظات:</strong> ثقوب في الخلايا الورقية تؤدي إلى اصفرار منقط (تبقع) ثم جفاف الأوراق. تتغذى العناكب على السطح السفلي للأوراق وتنسج خيوطاً حريرية كثيفة.</p>
+<p><strong>الظروف المساعدة:</strong> ارتفاع الحرارة (&gt;30°م) وانخفاض الرطوبة الجوية (&lt;60%)، بالإضافة إلى الإجهاد المائي يزيد من حدة الإصابة.</p>
+<h4>🛠️ الإدارة المتكاملة للآفات (IPM):</h4>
+<p><strong>1. المكافحة الكيميائية (بالتناوب لمنع المقاومة):</strong></p>
+<ul>
+<li><strong>أبامكتين 1.8% EC</strong> (فيرتيميك) 50 مل/100 لتر – يغطى السطح السفلي للأوراق.</li>
+<li><strong>سبيروميسيفين</strong> (أوبرون) 25 مل/100 لتر – ممتاز ضد البيض والحوريات.</li>
+<li><strong>هيكسيثياوكس</strong> (نيسورون) 15 مل/100 لتر – يثبط انسلاخ الحوريات.</li>
+<li><strong>زيت النيم</strong> 2-3 مل/لتر – بديل طبيعي مانع للتغذية.</li>
+</ul>
+<p><strong>2. المكافحة الفيزيائية والبيئية:</strong></p>
+<ul>
+<li><strong>الرش الضبابي:</strong> رفع الرطوبة حول النبات (رش الأوراق بالماء) يثبط تكاثر العناكب.</li>
+<li><strong>التبريد:</strong> خفض درجة الحرارة في الصوب أو استخدام مراوح للتهوية.</li>
+<li><strong>إزالة الأعشاب الضارة:</strong> لأنها عوائل بديلة للآفة.</li>
+</ul>
+<p><strong>3. المكافحة الحيوية:</strong> إطلاق المفترسات الطبيعية مثل <em>Phytoseiulus persimilis</em> (10 أفراد/م²) عند أول ظهور للإصابة. تجنب المبيدات واسعة المجال التي تقتل هذه المفترسات.</p>"""
+        elif "Virus" in disease or "mosaic" in disease or "YellowLeaf" in disease:
+            html += """
+<h3>🚫 تقييم باثولوجي – عدوى فيروسية جهازية</h3>
+<p><strong>ملاحظة فنية:</strong> الفيروسات جهازية، بمجرد الإصابة لا يوجد علاج كيميائي لأنسجة النبات المصابة. النجاح يعتمد على منع الانتشار والسيطرة على النواقل.</p>
+<p><strong>الأعراض:</strong> تبرقش الأوراق (تبادل مناطق خضراء وصفراء)، تجعد، تقزم النبات، تشوه الثمار، ضعف عام في النمو.</p>
+<h4>🛠️ استراتيجية السيطرة (لا علاج، فقط منع):</h4>
+<p><strong>1. إدارة النواقل (الحشرات):</strong> السيطرة على الذبابة البيضاء (ناقل فيروس تجعد الأوراق الصفراء) والمن (ناقل فيروس الموزاييك).</p>
+<ul>
+<li>استخدام مبيدات جهازية مثل <strong>إيميداكلوبريد</strong> (كونفيدور 0.5 مل/لتر) أو <strong>أسيتاميبريد</strong> (موسبيلان 0.25 جم/لتر) بالتناوب مع مبيدات تماس (بيرميثرين).</li>
+<li>نشر المصائد اللاصقة الصفراء (15-20 مصيدة/فدان) للمراقبة والكشف المبكر.</li>
+<li>تركيب شبكات حشرية دقيقة (50 ميكرون) على مداخل الصوبات وفتحات التهوية.</li>
+</ul>
+<p><strong>2. الاستئصال:</strong> قلع النباتات المصابة فوراً لأنها بؤرة لانتشار الفيروس. وضعها في أكياس محكمة وإخراجها خارج الحقل. عدم ترك بقايا النباتات داخل التربة.</p>
+<p><strong>3. وقاية الزراعة الجديدة:</strong> استخدام شتلات خالية من الفيروسات من مصادر موثوقة. تطهير الأدوات واليدين قبل العمل في الحقل. تجنب زراعة المحاصيل الحساسة بجوار حقول مصابة.</p>"""
+        else:
+            html += f"""
+<h3>🍄 التشخيص: {disease_ar}</h3>
+<p>بقع نخرية على الأوراق ناتجة عن مسببات فطرية أو بكتيرية. يعتمد العلاج على المسبب الدقيق ولكن يمكن اتباع البروتوكول العام التالي.</p>
+<h4>🛠️ توصيات الخبراء للسيطرة:</h4>
+<p><strong>1. المكافحة الكيميائية (عند ظهور الأعراض):</strong></p>
+<ul>
+<li><strong>كلوروثالونيل</strong> (برافو) 200 مل/100 لتر – فطري واسع المجال.</li>
+<li><strong>أزوكسيستروبين</strong> (أميستار) 40 مل/100 لتر – فطري جهازي وقائي وعلاجي.</li>
+<li><strong>أوكسي كلورور النحاس</strong> 300 جم/100 لتر – للكبح البكتيري والفطري (يستخدم بحذر لتجنب التسمم).</li>
+<li><strong>مانكوزيب</strong> (مانزوكوب) 250 جم/100 لتر – فعال ضد الندوات المبكرة والمتأخرة.</li>
+</ul>
+<p><strong>2. الإجراءات الثقافية:</strong></p>
+<ul>
+<li>تقليم الأوراق السفلية والمصابة لتحسين التهوية وتقليل مصدر العدوى.</li>
+<li>تجنب الري بالرش، واستخدام الري بالتنقيط.</li>
+<li>تطبيق التغطية بالبلاستيك (mulching) لمنع تناثر التربة الملوثة على الأوراق.</li>
+<li>تناوب المحاصيل مع نباتات غير عائلة (مثل البقوليات) لمدة عامين.</li>
+</ul>
+<p><strong>3. المكافحة الحيوية:</strong> رش مستحضرات تحتوي على <em>Bacillus subtilis</em> (سيريناد) أو <em>Trichoderma</em> لتثبيط نمو الفطريات الممرضة.</p>"""
 
-# Logo and header – without background
+        # Environmental Context Arabic (expanded)
+        html += "<h4>🌍 عوامل الذكاء البيئي وتوصيات مكيفة:</h4>"
+        if temp > 38:
+            html += f"<p>⚠️ <strong>إجهاد حراري ({temp}°م):</strong> استخدام <strong>سليكات البوتاسيوم</strong> (2 مل/لتر) لتقوية جدر الخلايا وتقليل النتح. رش الأحماض الأمينية والجبرلين لتخفيف الإجهاد. زيادة الري ليلاً لتبريد منطقة الجذور.</p>"
+        elif temp < 10:
+            html += f"<p>❄️ <strong>إجهاد برودة ({temp}°م):</strong> استخدام أغطية بلاستيكية ليلاً. رش سترات الكالسيوم لتعزيز صلابة النبات. تقليل الري لتجنب تعفن الجذور.</p>"
+        
+        if soil == "طينية" and water in ["عالي", "مشبع بالمياه"]:
+            html += "<p>⚠️ <strong>ميكانيكا التربة:</strong> خطر مرتفع لحدوث <strong>نقص الأكسجين (Hypoxia)</strong> وعفن الجذور في التربة الثقيلة. إضافة مادة عضوية (كمبوست) لتحسين الصرف. إطالة فترات الجفاف بين الريات. استخدام مراوح تهوية في الصوب لزيادة الأكسجين حول الجذور.</p>"
+        elif soil == "رملية" and water == "منخفض":
+            html += "<p>💧 <strong>إجهاد جفاف:</strong> التربة الرملية تستنزف الماء بسرعة. النبات يقترب من نقطة الذبول الدائم. زيادة وتيرة الري مع تقليل الكمية (الري المتكرر الخفيف). إضافة مواد حافظة للرطوبة مثل البوليمرات الماصة أو الكمبوست لتحسين احتفاظ التربة بالماء.</p>"
+        elif soil == "طينية" and water == "منخفض":
+            html += "<p>⚠️ <strong>إجهاد جفاف في تربة ثقيلة:</strong> التربة الطينية قد تتشقق وتجف بسرعة رغم قدرتها على الاحتفاظ بالماء. التغطية العضوية (القش) حول النباتات للحفاظ على رطوبة التربة ومنع التبخر.</p>"
+        
+        html += f"""<hr>
+<p style="font-style: italic;"><strong>القرار الهندسي النهائي:</strong> مستوى الثقة {conf*100:.1f}%. التوصيات تستند إلى البروتوكولات الزراعية الدولية وممارسات الخبراء المعتمدة.</p>
+<p style="font-size: 0.9em;"><strong>ملاحظة مهمة:</strong> هذه التوصيات استشارية. يُرجى الرجوع إلى مهندس زراعي معتمد لتحديد الجرعات وفق ظروفك الحقلية والتشريعات المحلية.</p>
+</div>"""
+
+    else:
+        # English Version (professional)
+        html = f"""<div class="report-container">
+<h2 style="text-align: center;">📋 CERTIFIED AGRICULTURE CLINIC REPORT</h2>
+<p style="text-align: center; opacity:0.7;">Certified Agricultural Engineer: Ahmed Abd Al-Hafez</p>
+<hr>
+<p><strong>Primary Diagnosis:</strong> {disease_en}</p>
+<p><strong>Statistical Confidence:</strong> {conf*100:.2f}%</p>
+<p><strong>Field Conditions:</strong> Temperature: {temp}°C | Soil: {soil} | Irrigation: {water}</p>
+<hr>"""
+
+        if "healthy" in disease:
+            html += """
+<h3>✅ Physiological Assessment – Healthy</h3>
+<p>The analyzed sample exhibits <strong>excellent photosynthetic efficiency</strong> and no signs of biotic or abiotic stress. The vascular system is fully functional.</p>
+<h4>📌 Strategic Recommendations for Plant Health Maintenance:</h4>
+<ul>
+<li><strong>Precise Nutritional Balance:</strong> Maintain balanced N-P-K ratios (1:1:1 during vegetative stage, then 1:2:2 after flowering). Focus on Calcium (Calcium nitrate 2-3 kg/1000 m²) and Boron (Boric acid 0.5-1 g/L) applications during flowering to prevent blossom end rot and fruit cracking.</li>
+<li><strong>Biostimulants:</strong> Apply Amino Acids (1 L/ha) and Potassium Humate (2-3 kg/ha) to enhance root absorption and improve stress tolerance.</li>
+<li><strong>Preventive Monitoring:</strong> Scout the field every 48 hours for early pest egg masses. Use yellow sticky traps (15-20 per acre) to monitor whiteflies and aphids. Install insect-proof nets (50 mesh) on greenhouse openings.</li>
+<li><strong>Irrigation Management:</strong> Use drip irrigation to avoid leaf wetness. Irrigate in the morning to allow foliage to dry. On heavy soils, incorporate dry periods between irrigations to aerate roots and prevent hypoxia.</li>
+<li><strong>Future Recommendations:</strong> Conduct annual soil analysis to fine‑tune fertilization. Use resistant cultivars for prevalent diseases in the upcoming season.</li>
+</ul>"""
+        elif "Late_blight" in disease:
+            html += """
+<h3>🚨 Pathogen Alert – Late Blight (Phytophthora infestans)</h3>
+<p><strong>Etiology:</strong> An oomycete pathogen that thrives in high humidity (>90%) and moderate temperatures (15-25°C). It can devastate fields within 7-10 days under favorable conditions.</p>
+<p><strong>Detailed Symptoms:</strong> Dark, water-soaked lesions on leaves turning brown-black with a yellow halo. Elongated brown lesions on stems. Under humid conditions, white sporangial growth appears on leaf undersides. Fruits develop oily brown spots.</p>
+<h4>🛠️ Integrated Management Plan (Emergency):</h4>
+<p><strong>1. Immediate Chemical Intervention (rotate products):</strong></p>
+<ul>
+<li><strong>Metalaxyl-M + Mancozeb</strong> (Ridomil Gold) 250 g/100 L – preventive and early curative.</li>
+<li><strong>Cymoxanil + Famoxadone</strong> (Tanos) – strong curative action.</li>
+<li><strong>Propamocarb Hydrochloride</strong> (Previcur) 150 ml/100 L – protects roots and stems.</li>
+<li><strong>Fosetyl-Aluminum</strong> (Aliette) 200 g/100 L – resistance inducer.</li>
+<li><strong>Apply every 5-7 days, alternating, with a sticker (Silwet 0.5 ml/L).</strong></li>
+</ul>
+<p><strong>2. Field Management:</strong></p>
+<ul>
+<li><strong>Humidity:</strong> Halt overhead irrigation immediately; switch to drip. Increase greenhouse ventilation.</li>
+<li><strong>Sanitation:</strong> Remove and burn severely infected plants. Disinfect tools with 70% alcohol or bleach.</li>
+<li><strong>Crop Rotation:</strong> Avoid planting Solanaceae crops (potato, tomato, pepper) in the same field for at least 3 years.</li>
+</ul>
+<p><strong>3. Biological Control:</strong> Apply products containing <em>Trichoderma harzianum</em> or <em>Bacillus subtilis</em> to suppress soil‑borne inoculum.</p>"""
+        elif "Spider_mites" in disease:
+            html += """
+<h3>🕷️ Pest Analysis – Two-Spotted Spider Mite (Tetranychus urticae)</h3>
+<p><strong>Observations:</strong> Punctured leaf cells cause chlorotic stippling, followed by leaf desiccation. Mites feed on the abaxial surface and produce dense webbing.</p>
+<p><strong>Favorable Conditions:</strong> High temperatures (>30°C), low humidity (<60%), and water stress exacerbate infestations.</p>
+<h4>🛠️ Integrated Pest Management (IPM):</h4>
+<p><strong>1. Chemical Control (rotate to avoid resistance):</strong></p>
+<ul>
+<li><strong>Abamectin 1.8% EC</strong> (Vertimec) 50 ml/100 L – ensure thorough coverage of lower leaf surfaces.</li>
+<li><strong>Spiromesifen</strong> (Oberon) 25 ml/100 L – excellent against eggs and nymphs.</li>
+<li><strong>Hexythiazox</strong> (Nissorun) 15 ml/100 L – inhibits nymph molting.</li>
+<li><strong>Neem Oil</strong> 2-3 ml/L – natural antifeedant.</li>
+</ul>
+<p><strong>2. Physical and Environmental Control:</strong></p>
+<ul>
+<li><strong>Mist Spraying:</strong> Increase humidity around plants (misting leaves) to suppress mite reproduction.</li>
+<li><strong>Cooling:</strong> Reduce greenhouse temperature or use fans for ventilation.</li>
+<li><strong>Weed Removal:</strong> Eliminate alternative host plants.</li>
+</ul>
+<p><strong>3. Biological Control:</strong> Release predatory mites such as <em>Phytoseiulus persimilis</em> (10 individuals/m²) at early infestation. Avoid broad‑spectrum pesticides that kill these predators.</p>"""
+        elif "Virus" in disease or "mosaic" in disease or "YellowLeaf" in disease:
+            html += """
+<h3>🚫 Pathological Assessment – Systemic Viral Infection</h3>
+<p><strong>Technical Note:</strong> Viruses are systemic; once infected, there is no chemical cure for plant tissue. Success depends on preventing spread and controlling vectors.</p>
+<p><strong>Symptoms:</strong> Mosaic (alternating green and yellow patches), leaf curl, stunting, fruit deformities, overall decline.</p>
+<h4>🛠️ Control Strategy (No Cure, Only Prevention):</h4>
+<p><strong>1. Vector Management:</strong> Control whiteflies (vector of Tomato Yellow Leaf Curl Virus) and aphids (vector of mosaic viruses).</p>
+<ul>
+<li>Use systemic insecticides such as <strong>Imidacloprid</strong> (Confidor 0.5 ml/L) or <strong>Acetamiprid</strong> (Mospilan 0.25 g/L), alternating with contact products (permethrin).</li>
+<li>Place yellow sticky traps (15-20 per acre) for monitoring and early detection.</li>
+<li>Install fine mesh insect nets (50 micron) on greenhouse vents and entrances.</li>
+</ul>
+<p><strong>2. Eradication:</strong> Uproot infected plants immediately as they serve as virus reservoirs. Place them in sealed bags and remove from the field. Do not leave plant debris inside.</p>
+<p><strong>3. Protection for New Plantings:</strong> Use virus‑free seedlings from reliable sources. Disinfect tools and hands before working. Avoid planting new susceptible crops adjacent to infected fields.</p>"""
+        else:
+            html += f"""
+<h3>🍄 Diagnosis: {disease_en}</h3>
+<p>Necrotic leaf lesions likely caused by fungal or bacterial pathogens. A general control protocol is provided below.</p>
+<h4>🛠️ Expert Recommendations for Control:</h4>
+<p><strong>1. Chemical Control (when symptoms appear):</strong></p>
+<ul>
+<li><strong>Chlorothalonil</strong> (Bravo) 200 ml/100 L – broad‑spectrum fungicide.</li>
+<li><strong>Azoxystrobin</strong> (Amistar) 40 ml/100 L – systemic fungicide with protective and curative action.</li>
+<li><strong>Copper Oxychloride</strong> 300 g/100 L – for bacterial and fungal suppression (use cautiously to avoid phytotoxicity).</li>
+<li><strong>Mancozeb</strong> (Manzate) 250 g/100 L – effective against early and late blights.</li>
+</ul>
+<p><strong>2. Cultural Practices:</strong></p>
+<ul>
+<li>Prune lower and infected leaves to improve air circulation and reduce inoculum.</li>
+<li>Avoid overhead irrigation; use drip irrigation.</li>
+<li>Apply plastic mulch to prevent soil splash onto leaves.</li>
+<li>Rotate crops with non‑host families (e.g., legumes) for two years.</li>
+</ul>
+<p><strong>3. Biological Control:</strong> Apply products containing <em>Bacillus subtilis</em> (Serenade) or <em>Trichoderma</em> to suppress fungal pathogens.</p>"""
+
+        # Environmental Context English (expanded)
+        html += "<h4>🌍 Environmental Intelligence Factors & Tailored Recommendations:</h4>"
+        if temp > 38:
+            html += f"<p>⚠️ <strong>Heat Stress ({temp}°C):</strong> Apply <strong>Potassium Silicate</strong> (2 ml/L) to strengthen cell walls and reduce transpiration. Spray amino acids and gibberellins to alleviate stress. Increase night irrigation to cool roots.</p>"
+        elif temp < 10:
+            html += f"<p>❄️ <strong>Cold Stress ({temp}°C):</strong> Use plastic covers at night. Spray calcium citrate to strengthen plant cell walls. Reduce irrigation to avoid root rot.</p>"
+        
+        if soil == "Clay" and water in ["High", "Waterlogged"]:
+            html += "<p>⚠️ <strong>Soil Mechanics:</strong> High risk of <strong>Hypoxia</strong> and root rot in heavy soil. Add organic matter (compost) to improve drainage. Increase dry periods between irrigations. Use ventilation fans in greenhouses to boost oxygen around roots.</p>"
+        elif soil == "Sandy" and water == "Low":
+            html += "<p>💧 <strong>Drought Stress:</strong> Sandy soils drain rapidly. Plant is nearing wilting point. Increase irrigation frequency with smaller amounts (light, frequent watering). Add moisture‑retaining materials like hydrogels or compost to improve water holding capacity.</p>"
+        elif soil == "Clay" and water == "Low":
+            html += "<p>⚠️ <strong>Drought Stress in Heavy Soil:</strong> Clay soils may crack and dry quickly despite their water‑holding capacity. Apply organic mulch (straw) around plants to conserve moisture and reduce evaporation.</p>"
+        
+        html += f"""<hr>
+<p style="font-style: italic;"><strong>Final Engineering Verdict:</strong> Confidence level is {conf*100:.1f}%. Recommendations are based on international agronomic protocols and expert practices.</p>
+<p style="font-size: 0.9em;"><strong>Important Note:</strong> These recommendations are advisory. Always consult a certified agricultural engineer for precise dosages based on your field conditions and local regulations.</p>
+</div>"""
+    return html
+
+# Logo and header – remove background
 col_logo, col_text = st.columns([1, 5])
 with col_logo:
     try:
         st.image("logo.png", width=140)
     except:
         pass
+# The rest of the header is handled by CSS; we don't need extra content here.
 
 # --- 7. App Layout ---
 st.title(ui["title"])
@@ -373,27 +600,13 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-        # Export PDF button using components.html for reliable printing
-        pdf_button_html = f"""
-        <div style="margin-bottom: 10px;">
-            <button onclick="window.print();" style="
-                background: linear-gradient(135deg, #1b5e20, #2e7d32);
-                color: white;
-                border: none;
-                padding: 0.5rem 1.5rem;
-                border-radius: 40px;
-                font-size: 1rem;
-                font-weight: 600;
-                cursor: pointer;
-                width: 100%;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                transition: all 0.3s;
-            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                {ui["export_pdf"]}
-            </button>
-        </div>
-        """
-        st.components.v1.html(pdf_button_html, height=60)
+        # Export PDF button
+        if st.button(ui["export_pdf"], key="pdf_btn"):
+            st.markdown("""
+            <script>
+                window.print();
+            </script>
+            """, unsafe_allow_html=True)
         
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
@@ -416,47 +629,23 @@ with c2:
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
                 st.session_state.saved_report = full_report
                 st.session_state.show_modal = True
+                
+                # Display modal (overlay) with close button using JavaScript
+                modal_html = f"""
+                <div id="modalOverlay" class="modal-overlay">
+                    <div class="modal-box">
+                        <div class="close-btn" onclick="document.getElementById('modalOverlay').style.display='none'">×</div>
+                        {full_report}
+                    </div>
+                </div>
+                """
+                st.markdown(modal_html, unsafe_allow_html=True)
     
-    # Display the saved report in the main area
+    # Display the saved report in the main area if it exists
     if st.session_state.saved_report:
         st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
     else:
         st.info(ui["wait"])
-
-# Modal display using session state (so it's controllable)
-if st.session_state.show_modal and st.session_state.saved_report:
-    # Create modal overlay via HTML but with a close button that updates session state
-    close_js = f"""
-    <script>
-        function closeModal() {{
-            // Use Streamlit's JavaScript API to set session state
-            const event = new CustomEvent('streamlit:setComponentValue', {{
-                detail: {{ key: 'modal_close', value: true }}
-            }});
-            window.dispatchEvent(event);
-            // Also remove the overlay from DOM
-            const overlay = document.getElementById('modalOverlay');
-            if (overlay) overlay.style.display = 'none';
-        }}
-    </script>
-    <div id="modalOverlay" class="modal-overlay">
-        <div class="modal-box">
-            <div class="close-btn" onclick="closeModal()">×</div>
-            {st.session_state.saved_report}
-        </div>
-    </div>
-    """
-    st.components.v1.html(close_js, height=0)
-    # Add a hidden button to receive the close signal
-    if st.button("", key="modal_close", help="", type="primary", use_container_width=False):
-        st.session_state.show_modal = False
-        st.rerun()
-    # Hide the actual button visually
-    st.markdown("""
-    <style>
-        button[key="modal_close"] { display: none; }
-    </style>
-    """, unsafe_allow_html=True)
 
 st.markdown("---")
 st.caption(ui["footer"])
