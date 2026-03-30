@@ -54,7 +54,7 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
     
     .stApp {{
-        background-image: url('background.jpeg');
+        background-image: url("data:image/jpeg;base64,{img_base64}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
