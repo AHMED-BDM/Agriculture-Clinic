@@ -42,7 +42,6 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
     
-    /* إضافة الخلفية الاحترافية للموقع بالكامل */
     .stApp {{
         background-image: url('background..jpeg');
         background-size: cover;
@@ -50,9 +49,8 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
-    /* طبقة تظليل خفيفة فوق الخلفية لتحسين قراءة العناصر */
     .stApp > div:first-child {{
-        background-color: rgba(255, 255, 255, 0.3);
+        background: linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55));
     }}
 
     html, body, [class*="css"] {{
@@ -68,10 +66,20 @@ st.markdown(f"""
         border-radius: 15px;
         border-left: 12px solid #1b5e20;
         border-right: 12px solid #1b5e20;
-        box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.25);
         line-height: 1.8;
         text-align: {text_align};
         direction: {direction};
+        animation: fadeSlide 0.8s ease forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }}
+
+    @keyframes fadeSlide {{
+        to {{
+            opacity: 1;
+            transform: translateY(0);
+        }}
     }}
 
     .report-container h2, .report-container h3, .report-container h4 {{
@@ -86,13 +94,24 @@ st.markdown(f"""
 
     .stButton>button {{
         width: 100%;
-        background-color: #1b5e20;
+        background: linear-gradient(135deg, #1b5e20, #2e7d32);
         color: white;
         font-size: 18px;
         font-weight: bold;
         padding: 15px;
         border-radius: 10px;
+        transition: all 0.3s ease;
     }}
+
+    .stButton>button:hover {{
+        transform: scale(1.03);
+        box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
+    }}
+
+    img {{
+        filter: drop-shadow(0px 4px 12px rgba(0,0,0,0.4));
+    }}
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -347,7 +366,7 @@ with c2:
                 
                 # Detailed Report Rendering
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
-                st.markdown(full_report, unsafe_allow_html=True)
+                st.markdown(f'<div class="report-container">{full_report}</div>', unsafe_allow_html=True)
     else:
         st.info(ui["wait"])
 
