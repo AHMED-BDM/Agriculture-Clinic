@@ -48,10 +48,7 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
     
     .stApp {{
-        background-image: url('background.jpg');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
+       background: linear-gradient(135deg, #141e30, #243b55);
     }}
 
     .stApp > div:first-child {{
