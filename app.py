@@ -431,15 +431,15 @@ with c2:
                 # Detailed Report Rendering
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
                 modal_html = f"""
-<div class="modal-overlay" id="modal">
-    <div class="modal-box">
-        <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
-        {full_report}
-    </div>
-</div>
-"""
-st.markdown(modal_html, unsafe_allow_html=True)
-    else:
+                <div class="modal-overlay" id="modal">
+                    <div class="modal-box">
+                        <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
+                        {full_report}
+                            </div>
+                </div>
+                """
+                st.markdown(modal_html, unsafe_allow_html=True)
+      else:
         st.info(ui["wait"])
 
 st.markdown("---")
