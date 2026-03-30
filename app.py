@@ -8,11 +8,6 @@ st.set_page_config(page_title="Pro Ag-Clinic AI", page_icon="🌿", layout="wide
 
 # --- 2. Language Setup ---
 with st.sidebar:
-    # --- إضافة اللوجو (مرة واحدة فقط في أعلى القائمة الجانبية) ---
-    try:
-        st.image("logo.png", use_container_width=True)
-    except:
-        pass # إذا لم يجد الصورة لن يظهر خطأ يفسد الواجهة
 
     st.title("🌐 Language / اللغة")
     lang = st.radio("Choose Interface Language:", ["English", "العربية"])
