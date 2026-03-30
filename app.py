@@ -1,3 +1,4 @@
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -8,6 +9,11 @@ st.set_page_config(page_title="Pro Ag-Clinic AI", page_icon="🌿", layout="wide
 
 # --- 2. Language Setup ---
 with st.sidebar:
+    # --- إضافة اللوجو (مرة واحدة فقط في أعلى القائمة الجانبية) ---
+    try:
+        st.image("logo.png", use_container_width=True)
+    except:
+        pass # إذا لم يجد الصورة لن يظهر خطأ يفسد الواجهة
 
     st.title("🌐 Language / اللغة")
     lang = st.radio("Choose Interface Language:", ["English", "العربية"])
@@ -42,6 +48,7 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
     
+    /* إضافة الخلفية الاحترافية للموقع بالكامل */
     .stApp {{
         background-image: url('background..jpeg');
         background-size: cover;
@@ -49,8 +56,9 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
+    /* طبقة تظليل خفيفة فوق الخلفية لتحسين قراءة العناصر */
     .stApp > div:first-child {{
-        background: linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55));
+        background-color: rgba(255, 255, 255, 0.3);
     }}
 
     html, body, [class*="css"] {{
@@ -66,20 +74,10 @@ st.markdown(f"""
         border-radius: 15px;
         border-left: 12px solid #1b5e20;
         border-right: 12px solid #1b5e20;
-        box-shadow: 0px 10px 30px rgba(0,0,0,0.25);
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
         line-height: 1.8;
         text-align: {text_align};
         direction: {direction};
-        animation: fadeSlide 0.8s ease forwards;
-        opacity: 0;
-        transform: translateY(20px);
-    }}
-
-    @keyframes fadeSlide {{
-        to {{
-            opacity: 1;
-            transform: translateY(0);
-        }}
     }}
 
     .report-container h2, .report-container h3, .report-container h4 {{
@@ -94,87 +92,12 @@ st.markdown(f"""
 
     .stButton>button {{
         width: 100%;
-        background: linear-gradient(135deg, #1b5e20, #2e7d32);
+        background-color: #1b5e20;
         color: white;
         font-size: 18px;
         font-weight: bold;
         padding: 15px;
         border-radius: 10px;
-        transition: all 0.3s ease;
-    }}
-
-    .stButton>button:hover {{
-        transform: scale(1.03);
-        box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
-    }}
-
-    img {{
-        filter: drop-shadow(0px 4px 12px rgba(0,0,0,0.4));
-    }}
-
-
-
-
-
-
-
-
-
-
-    .modal-overlay {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        animation: fadeIn 0.4s ease forwards;
-    }
-
-    .modal-box {
-        width: 70%;
-        max-height: 85vh;
-        overflow-y: auto;
-        background: #ffffff;
-        border-radius: 18px;
-        padding: 25px;
-        position: relative;
-        animation: scaleIn 0.4s ease forwards;
-        box-shadow: 0px 20px 60px rgba(0,0,0,0.4);
-    }
-
-    .close-btn {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 22px;
-        font-weight: bold;
-        color: #333;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .close-btn:hover {
-        color: red;
-        transform: scale(1.2);
-    }
-
-    @keyframes fadeIn {{
-        from {{opacity: 0;}}
-        to {{opacity: 1;}}
-    }}
-
-    @keyframes scaleIn {{
-        from {{
-            transform: scale(0.8);
-            opacity: 0;
-        }}
-        to {{
-            transform: scale(1);
-            opacity: 1;
-        }}
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -411,33 +334,26 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-    if st.button(ui["btn_analyze"]):
-       with st.spinner(ui["spinner"]):
-        # Process
-        proc_img = img.convert("RGB").resize((224, 224))
-        img_array = np.array(proc_img) / 255.0
-        img_array = np.expand_dims(img_array, axis=0)
-        
-        # Predict
-        raw_preds = model.predict(img_array, verbose=0)
-        best_idx = np.argmax(raw_preds)
-        best_conf = float(np.max(raw_preds))
-        label = class_names[best_idx]
-        
-        identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
-        st.success(f"{identified_text} ✓")
-        
-        full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
-
-        modal_html = f"""
-        <div class="modal-overlay" id="modal">
-            <div class="modal-box">
-                <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
-                {full_report}
-            </div>
-        </div>
-        """
-        st.markdown(modal_html, unsafe_allow_html=True)
+        if st.button(ui["btn_analyze"]):
+            with st.spinner(ui["spinner"]):
+                # Process
+                proc_img = img.convert("RGB").resize((224, 224))
+                img_array = np.array(proc_img) / 255.0
+                img_array = np.expand_dims(img_array, axis=0)
+                
+                # Predict
+                raw_preds = model.predict(img_array, verbose=0)
+                best_idx = np.argmax(raw_preds)
+                best_conf = float(np.max(raw_preds))
+                label = class_names[best_idx]
+                
+                # Success Info
+                identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
+                st.success(f"{identified_text} ✓")
+                
+                # Detailed Report Rendering
+                full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
+                st.markdown(full_report, unsafe_allow_html=True)
     else:
         st.info(ui["wait"])
 
