@@ -30,7 +30,8 @@ ui = {
     "btn_analyze": "بدء التحليل العميق" if is_ar else "EXECUTE DEEP ANALYSIS",
     "spinner": "جاري استدعاء قاعدة البيانات الزراعية..." if is_ar else "Accessing Agricultural Knowledge Base...",
     "wait": "في انتظار رفع صورة العينة للتشخيص..." if is_ar else "Awaiting leaf specimen for diagnosis...",
-    "footer": "© 2026 النظم الزراعية الذكية | قسم الزراعة الدقيقة" if is_ar else "© 2026 Smart Agri-Systems | Expert Module | Precision Agriculture Division"
+    "footer": "© 2026 النظم الزراعية الذكية | قسم الزراعة الدقيقة" if is_ar else "© 2026 Smart Agri-Systems | Expert Module | Precision Agriculture Division",
+    "export_pdf": "تصدير PDF" if is_ar else "Export PDF"
 }
 
 # Initialize session state
@@ -78,6 +79,21 @@ st.markdown(f"""
         background: rgba(255, 255, 255, 0.92) !important;
         backdrop-filter: blur(10px);
         border-right: 1px solid rgba(0,0,0,0.05);
+    }}
+
+    /* Remove background from the logo column */
+    div[data-testid="column"]:first-child {{
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }}
+    
+    /* Remove extra white rectangles */
+    .stApp header {{
+        background: transparent !important;
+    }}
+    .stApp .st-emotion-cache-1r6slb0 {{
+        background: transparent !important;
     }}
 
     /* Main Columns - subtle cards */
@@ -209,6 +225,7 @@ st.markdown(f"""
         align-items: center;
         justify-content: center;
         border-radius: 50%;
+        z-index: 10000;
     }}
     
     .close-btn:hover {{
@@ -248,6 +265,30 @@ st.markdown(f"""
         border-radius: 12px !important;
     }}
     
+    /* Print styles for PDF export */
+    @media print {{
+        body * {{
+            visibility: hidden;
+        }}
+        .report-container, .report-container * {{
+            visibility: visible;
+        }}
+        .report-container {{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            box-shadow: none;
+        }}
+        .stApp, .stApp > div, [data-testid="stColumn"] {{
+            background: white !important;
+        }}
+        .stButton, .stSidebar, .stMarkdown:has(button) {{
+            display: none !important;
+        }}
+    }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -528,13 +569,14 @@ def get_detailed_report(disease, temp, soil, water, conf, is_ar):
 </div>"""
     return html
 
-# Logo and header
+# Logo and header – remove background
 col_logo, col_text = st.columns([1, 5])
 with col_logo:
     try:
         st.image("logo.png", width=140)
     except:
         pass
+# The rest of the header is handled by CSS; we don't need extra content here.
 
 # --- 7. App Layout ---
 st.title(ui["title"])
@@ -558,6 +600,14 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
+        # Export PDF button
+        if st.button(ui["export_pdf"], key="pdf_btn"):
+            st.markdown("""
+            <script>
+                window.print();
+            </script>
+            """, unsafe_allow_html=True)
+        
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
                 # Process image
@@ -580,26 +630,16 @@ with c2:
                 st.session_state.saved_report = full_report
                 st.session_state.show_modal = True
                 
-                # Display modal (overlay)
-                if st.session_state.show_modal:
-    # زرار الإغلاق
-                    col_close = st.columns([10, 1])[1]
-                    with col_close:
-                        if st.button("✕", key="close_modal"):
-                            st.session_state.show_modal = False
-                            st.rerun()
-
-    # عرض التقرير في شكل modal
-                    st.markdown(f"""
-                    <div class="modal-overlay">
-                        <div class="modal-box">
-                            {st.session_state.saved_report}
-                        </div>
+                # Display modal (overlay) with close button using JavaScript
+                modal_html = f"""
+                <div id="modalOverlay" class="modal-overlay">
+                    <div class="modal-box">
+                        <div class="close-btn" onclick="document.getElementById('modalOverlay').style.display='none'">×</div>
+                        {full_report}
                     </div>
-                    """, unsafe_allow_html=True)
-
-
-
+                </div>
+                """
+                st.markdown(modal_html, unsafe_allow_html=True)
     
     # Display the saved report in the main area if it exists
     if st.session_state.saved_report:
