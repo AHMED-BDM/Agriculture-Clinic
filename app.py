@@ -39,7 +39,7 @@ if "saved_report" not in st.session_state:
 if "show_modal" not in st.session_state:
     st.session_state.show_modal = False
 
-# --- 3. Advanced CSS (Dynamic RTL/LTR + Background) ---
+# --- 3. Advanced CSS (Dynamic RTL/LTR + Professional Design) ---
 direction = "rtl" if is_ar else "ltr"
 text_align = "right" if is_ar else "left"
 font_family = "'Tajawal', 'Segoe UI', Tahoma, sans-serif" if is_ar else "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -51,7 +51,14 @@ def get_base64_image(image_path):
 img_base64 = get_base64_image("background.jpg")
 st.markdown(f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Segoe+UI:wght@400;500;700&display=swap');
+    
+    /* Global Reset & Base */
+    * {{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }}
     
     .stApp {{
         background-image: url("data:image/jpeg;base64,{img_base64}");
@@ -60,128 +67,164 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
-    /* جعل طبقة التغطية أكثر عتامة لتحسين قراءة النص */
+    /* Overlay - more opaque for better readability */
     .stApp > div:first-child {{
-        background: rgba(255, 255, 255, 0.85) !important;
-    }}
-
-    /* خلفية الشريط الجانبي */
-    .stSidebar {{
-        background: rgba(255, 255, 255, 0.92) !important;
+        background: rgba(255, 255, 255, 0.88) !important;
         backdrop-filter: blur(2px);
     }}
 
-    /* خلفية الأعمدة الرئيسية */
-    [data-testid="stColumn"] {{
-        background: rgba(255, 255, 255, 0.85);
-        border-radius: 12px;
-        padding: 1rem;
-        margin: 0.5rem 0;
+    /* Sidebar - modern glassmorphism */
+    .stSidebar {{
+        background: rgba(255, 255, 255, 0.92) !important;
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(0,0,0,0.05);
     }}
 
-    /* جميع النصوص بالأسود الصريح */
-    .stMarkdown, .stSubheader, .stTitle, .stCaption,
+    /* Main Columns - subtle cards */
+    [data-testid="stColumn"] {{
+        background: rgba(255, 255, 255, 0.88);
+        border-radius: 24px;
+        padding: 1.5rem;
+        margin: 0.75rem 0;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }}
+    
+    [data-testid="stColumn"]:hover {{
+        box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+    }}
+
+    /* All text in black */
+    html, body, [class*="css"], .stMarkdown, .stSubheader, .stTitle, .stCaption,
     .stAlert, .stInfo, .stSuccess, .stWarning, .stError,
     .stSelectbox, .stSlider, .stTextInput, label,
-    html, body, [class*="css"] {{
+    .stSidebar * {{
         color: #000000 !important;
         font-family: {font_family};
         direction: {direction};
         text-align: {text_align};
     }}
 
-    /* عناوين sidebar */
-    .stSidebar .stMarkdown, .stSidebar .stSubheader {{
-        color: #000000 !important;
+    /* Headings with slight weight */
+    h1, h2, h3, h4, h5, h6 {{
+        font-weight: 700 !important;
+        letter-spacing: -0.02em;
     }}
-
-    /* حاوية التقرير (تظل بيضاء بالكامل مع ظل) */
+    
+    /* Report Container - premium card */
     .report-container {{
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        padding: 30px;
-        border-radius: 15px;
-        border-left: 12px solid #1b5e20;
-        border-right: 12px solid #1b5e20;
-        box-shadow: 0px 10px 30px rgba(0,0,0,0.25);
-        line-height: 1.8;
-        animation: fadeSlide 0.6s ease forwards;
-        opacity: 0;
-        transform: translateY(20px);
+        background: #ffffff !important;
+        border-radius: 28px;
+        padding: 2rem;
+        border: none;
+        box-shadow: 0 20px 35px -10px rgba(0,0,0,0.15);
+        line-height: 1.7;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }}
-
-    @keyframes fadeSlide {{
-        to {{
-            opacity: 1;
-            transform: translateY(0);
-        }}
+    
+    .report-container:hover {{
+        box-shadow: 0 25px 40px -12px rgba(0,0,0,0.2);
     }}
-
+    
+    /* Green accent borders */
+    .report-container hr {{
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, #1b5e20, #2e7d32, #1b5e20);
+        margin: 1.2rem 0;
+    }}
+    
+    /* Buttons - gradient with shadow */
     .stButton>button {{
         width: 100%;
         background: linear-gradient(135deg, #1b5e20, #2e7d32);
-        color: white;
-        font-size: 18px;
-        font-weight: bold;
-        padding: 15px;
-        border-radius: 10px;
-        transition: 0.3s;
+        color: white !important;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 40px;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }}
-
+    
     .stButton>button:hover {{
-        transform: scale(1.03);
-        box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        background: linear-gradient(135deg, #2e7d32, #1b5e20);
     }}
-
+    
+    /* Image styling */
     img {{
-        filter: drop-shadow(0px 4px 12px rgba(0,0,0,0.4));
+        border-radius: 20px;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
     }}
-
+    
+    img:hover {{
+        transform: scale(1.02);
+    }}
+    
+    /* Modal overlay */
     .modal-overlay {{
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        background: rgba(0,0,0,0.65);
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(4px);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 9999;
-        animation: fadeIn 0.3s ease forwards;
+        animation: fadeIn 0.25s ease;
     }}
-
+    
     .modal-box {{
-        width: 70%;
+        width: 75%;
+        max-width: 1000px;
         max-height: 85vh;
         overflow-y: auto;
         background: #fff;
-        border-radius: 18px;
-        padding: 25px;
+        border-radius: 32px;
+        padding: 2rem;
         position: relative;
-        animation: scaleIn 0.35s ease forwards;
+        animation: scaleIn 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        box-shadow: 0 30px 40px rgba(0,0,0,0.3);
     }}
-
+    
     .close-btn {{
         position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 22px;
-        font-weight: bold;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
         cursor: pointer;
+        color: #555;
+        transition: all 0.2s;
+        line-height: 1;
+        background: rgba(0,0,0,0.05);
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
     }}
-
+    
     .close-btn:hover {{
-        color: red;
-        transform: scale(1.2);
+        color: #d32f2f;
+        background: rgba(0,0,0,0.1);
+        transform: rotate(90deg);
     }}
-
+    
     @keyframes fadeIn {{
-        from {{opacity: 0;}}
-        to {{opacity: 1;}}
+        from {{ opacity: 0; }}
+        to {{ opacity: 1; }}
     }}
-
+    
     @keyframes scaleIn {{
         from {{
-            transform: scale(0.8);
+            transform: scale(0.95);
             opacity: 0;
         }}
         to {{
@@ -189,56 +232,22 @@ st.markdown(f"""
             opacity: 1;
         }}
     }}
-
-
-
-
-
-
-
-
-/* إجبار كل النصوص تكون سوداء */
-html, body, p, span, div, label, small {{
-    color: #000 !important;
-}}
-
-/* العناوين */
-h1, h2, h3, h4, h5, h6 {{
-    color: #000 !important;
-}}
-
-/* عناصر Streamlit */
-.stMarkdown, .stText, .stSubheader, .stTitle, .stCaption,
-.stAlert, .stInfo, .stSuccess, .stWarning, .stError {{
-    color: #000 !important;
-}}
-
-/* Sidebar */
-section[data-testid="stSidebar"] * {{
-    color: #000 !important;
-}}
-
-/* Inputs */
-input, textarea, select {{
-    color: #000 !important;
-}}
-
-/* Labels الخاصة بالـ widgets */
-label, .stSelectbox label, .stSlider label {{
-    color: #000 !important;
-}}
-
-/* النص داخل الـ uploader */
-[data-testid="stFileUploader"] * {{
-    color: #000 !important;
-}}
-
-/* Fix للـ info box الأزرق */
-.stInfo {{
-    background-color: rgba(0,0,0,0.05) !important;
-    color: #000 !important;
-}}
-
+    
+    /* Fix for info box */
+    .stInfo {{
+        background: rgba(0,0,0,0.05) !important;
+        border-radius: 16px !important;
+        padding: 1rem !important;
+        border-left: 6px solid #1b5e20 !important;
+    }}
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {{
+        font-weight: 600 !important;
+        background: rgba(0,0,0,0.02) !important;
+        border-radius: 12px !important;
+    }}
+    
     </style>
 """, unsafe_allow_html=True)
 
@@ -278,244 +287,244 @@ arabic_classes = {
     "Tomato_healthy": "طماطم - سليم"
 }
 
-# --- 6. Detailed Agronomic Logic (Bilingual, Expanded) ---
+# --- 6. Detailed Agronomic Logic (Bilingual, Professional) ---
 def get_detailed_report(disease, temp, soil, water, conf, is_ar):
     disease_en = disease.replace("_", " ")
     disease_ar = arabic_classes.get(disease, disease_en)
     
     if is_ar:
         html = f"""<div class="report-container">
-<h2 style="text-align: center;">تقرير العيادة الزراعية المعتمد</h2>
-<p style="text-align: center;">تم الإنشاء بواسطة المهندس/ أحمد عبد الحافظ</p>
+<h2 style="text-align: center;">📋 تقرير العيادة الزراعية المعتمد</h2>
+<p style="text-align: center; opacity:0.7;">المهندس الزراعي المعتمد: أحمد عبد الحافظ</p>
 <hr>
-<p><b>التشخيص الأساسي:</b> {disease_ar}</p>
-<p><b>دقة التشخيص الإحصائي:</b> {conf*100:.2f}%</p>
-<p><b>الظروف الحقلية:</b> الحرارة: {temp} م° | التربة: {soil} | الري: {water}</p>
+<p><strong>التشخيص الأساسي:</strong> {disease_ar}</p>
+<p><strong>دقة النموذج الإحصائي:</strong> {conf*100:.2f}%</p>
+<p><strong>الظروف الحقلية المسجلة:</strong> درجة الحرارة: {temp}°C | نوع التربة: {soil} | مستوى الري: {water}</p>
 <hr>"""
 
         if "healthy" in disease:
             html += """
-<h3>✅ التقييم الفسيولوجي: مثالي</h3>
-<p>تظهر العينة التي تم تحليلها <b>كثافة كلوروفيل ممتازة</b> ولا يوجد أي تدهور خلوي. الجهاز الوعائي يعمل بكفاءة.</p>
-<h4>📋 توصيات استراتيجية مفصلة:</h4>
+<h3>✅ التقييم الفسيولوجي – سليم</h3>
+<p>العينة المدروسة تظهر <strong>كفاءة تمثيل ضوئي ممتازة</strong> وغياب أي علامات إجهاد حيوي أو غير حيوي. الجهاز الوعائي يعمل بكفاءة عالية.</p>
+<h4>📌 توصيات إستراتيجية للحفاظ على الصحة النباتية:</h4>
 <ul>
-<li><b>التوازن الغذائي:</b> حافظ على نسب N-P-K (مثلاً 1:1:1 في مرحلة النمو الخضري، ثم 1:2:2 بعد الإزهار). ركز على تطبيقات الكالسيوم-بورون (مثل نترات الكالسيوم 2-3 كجم/1000 م²) أثناء التزهير لتجنب الأزهار الميتة وتشقق الثمار.</li>
-<li><b>المحفزات الحيوية:</b> استخدم الأحماض الأمينية (مثل 1 لتر/فدان) وهيومات البوتاسيوم (2-3 كجم/فدان) لتعزيز كفاءة امتصاص الجذور وتحسين مقاومة الإجهادات.</li>
-<li><b>المراقبة الوقائية:</b> افحص الحقل كل 48 ساعة بحثاً عن كتل بيض الآفات المبكرة. ضع مصائد لاصقة صفراء لمراقبة الذبابة البيضاء والمن. استخدم شبكات حشرية على مداخل الصوب.</li>
-<li><b>إدارة الري:</b> استخدم الري بالتنقيط لتجنب الرطوبة الزائدة على الأوراق. قم بالري صباحاً لتبخير الرطوبة خلال النهار. في الأراضي الثقيلة، أضف فترات جفاف بين الريات لتهوية الجذور.</li>
-<li><b>توصيات مستقبلية:</b> قم بتحليل التربة سنوياً لتعديل برنامج التسميد. استخدم أصنافاً مقاومة للأمراض الشائعة في الموسم القادم.</li>
+<li><strong>التوازن الغذائي الدقيق:</strong> الحفاظ على نسب N-P-K متوازنة (1:1:1 خلال النمو الخضري، ثم 1:2:2 بعد التزهير). التركيز على إضافة الكالسيوم (نترات الكالسيوم 2-3 كجم/1000 م²) والبورون (حمض البوريك 0.5-1 جم/لتر) لضمان جودة الثمار.</li>
+<li><strong>المنشطات الحيوية:</strong> تطبيق الأحماض الأمينية (1 لتر/فدان) وهيمات البوتاسيوم (2-3 كجم/فدان) لتحسين امتصاص الجذور وزيادة مقاومة الإجهادات البيئية.</li>
+<li><strong>المراقبة الوقائية:</strong> الفحص الحقل المنتظم كل 48 ساعة لاكتشاف أي تجمعات مبكرة للآفات. استخدام المصائد اللاصقة الصفراء (15-20 مصيدة/فدان) لمراقبة الذبابة البيضاء والمن. تركيب شبكات حشرية (50 ميكرون) على مداخل الصوبات.</li>
+<li><strong>إدارة الري:</strong> الري بالتنقيط للحفاظ على جفاف الأوراق. الري صباحاً للسماح بتبخر الرطوبة. في الأراضي الثقيلة، إدخال فترات جفاف بين الريات لتهوية الجذور وتجنب الإجهاد الناتج عن نقص الأكسجين.</li>
+<li><strong>توصيات مستقبلية:</strong> تحليل التربة سنوياً لتعديل برامج التسميد. اعتماد أصناف مقاومة للأمراض السائدة في الموسم التالي.</li>
 </ul>"""
         elif "Late_blight" in disease:
             html += """
-<h3>🚨 إنذار مرضي: الندوة المتأخرة (فيتوفثورا)</h3>
-<p><b>المسبب:</b> فطر بيضي <i>Phytophthora infestans</i> يزدهر في الرطوبة العالية (>90%) ودرجات حرارة معتدلة (15-25°م). يمكنه تدمير الحقول بالكامل خلال 7-10 أيام.</p>
-<p><b>الأعراض التفصيلية:</b> بقع مائية خضراء داكنة على الأوراق، تتحول إلى بنية سوداء مع هالة صفراء. على الساق، تظهر بقع بنية مستطيلة. في الظروف الرطبة، ينمو عشب أبيض (الجراثيم) على السطح السفلي للأوراق. الثمار تصاب ببقع بنية زيتية.</p>
-<h4>🛠️ خطة العمل الطارئة (المكافحة المتكاملة):</h4>
-<p><b>1. التدخل الكيميائي الفوري (بالتناوب):</b></p>
+<h3>🚨 إنذار مرضي – الندوة المتأخرة (Phytophthora infestans)</h3>
+<p><strong>المسبب:</strong> فطر بيضي (Oomycete) يتطور بسرعة في الرطوبة الجوية &gt;90% ودرجات حرارة معتدلة (15-25°م). يمكنه القضاء على الحقل بالكامل خلال 7-10 أيام في الظروف الملائمة.</p>
+<p><strong>الأعراض التفصيلية:</strong> بقع مائية خضراء داكنة على الأوراق، تتحول إلى بنية سوداء مع هالة صفراء. على الساق تظهر بقع بنية مستطيلة. في الأجواء الرطبة، ينمو عشب أبيض (الجراثيم) على السطح السفلي للأوراق. الثمار تصاب ببقع بنية زيتية لامعة.</p>
+<h4>🛠️ خطة المكافحة المتكاملة (الطوارئ):</h4>
+<p><strong>1. التدخل الكيميائي العاجل (بالتناوب لتجنب المقاومة):</strong></p>
 <ul>
-<li><b>ميتالاكسيل-إم + مانكوزيب</b> (ريدوميل جولد) 250 جم/100 لتر – للوقاية والعلاج المبكر.</li>
-<li><b>سيموكسانيل + فاموكسادون</b> (تاكوس) – لعمل علاجي قوي.</li>
-<li><b>بروباموكارب هيدروكلوريد</b> (بروليفي) 150 مل/100 لتر – لرعاية الجذور والساق.</li>
-<li><b>فوسيتيل-ألومنيوم</b> 200 جم/100 لتر – محفز للمناعة.</li>
-<li><b>الرش بالتناوب كل 5-7 أيام، مع إضافة مادة لاصقة (سيلكيت أو تاين).</b></li>
+<li><strong>ميتالاكسيل-إم + مانكوزيب</strong> (ريدوميل جولد) 250 جم/100 لتر – وقائي وعلاجي مبكر.</li>
+<li><strong>سيموكسانيل + فاموكسادون</strong> (تاكوس) – تأثير علاجي قوي.</li>
+<li><strong>بروباموكارب هيدروكلوريد</strong> (بروليفي) 150 مل/100 لتر – يحمي الجذور والساق.</li>
+<li><strong>فوسيتيل-ألومنيوم</strong> (أليت) 200 جم/100 لتر – منشط مناعي.</li>
+<li><strong>الرش كل 5-7 أيام، بالتناوب، مع مادة لاصقة (سيلكيت 0.5 مل/لتر).</strong></li>
 </ul>
-<p><b>2. الإدارة الحقلية:</b></p>
+<p><strong>2. الإدارة الحقلية:</strong></p>
 <ul>
-<li><b>الرطوبة:</b> أوقف الري بالرش فوراً. حوّل إلى الري بالتنقيط إن أمكن. زد التهوية في الصوب.</li>
-<li><b>النظافة:</b> اقتلع النباتات المصابة بشدة واحرقها خارج الحقل. لا تقم بعمل كمبوست منها. تطهير الأدوات بالكحول أو هيبوكلوريت.</li>
-<li><b>تناوب المحاصيل:</b> لا تزرع محاصيل عائلة الباذنجانيات (بطاطس، طماطم، فلفل) في نفس الحقل لمدة 3 سنوات.</li>
+<li><strong>الرطوبة:</strong> وقف الري بالرش فوراً، التحول إلى الري بالتنقيط، زيادة التهوية في الصوب.</li>
+<li><strong>النظافة:</strong> قلع النباتات المصابة بشدة وحرقها خارج الحقل. تطهير الأدوات بالكحول 70% أو هيبوكلوريت الصوديوم.</li>
+<li><strong>الدورة الزراعية:</strong> عدم زراعة محاصيل العائلة الباذنجانية (بطاطس، طماطم، فلفل) في نفس الحقل لمدة 3 سنوات على الأقل.</li>
 </ul>
-<p><b>3. المكافحة الحيوية:</b> رش مستحضرات تحتوي على <i>Trichoderma harzianum</i> أو <i>Bacillus subtilis</i> للحد من تطور الفطر في التربة.</p>"""
+<p><strong>3. المكافحة الحيوية:</strong> رش مستحضرات تحتوي على <em>Trichoderma harzianum</em> أو <em>Bacillus subtilis</em> للحد من استمرار الفطر في التربة.</p>"""
         elif "Spider_mites" in disease:
             html += """
-<h3>🕷️ تحليل الآفات: العنكبوت الأحمر ذو البقعتين (<i>Tetranychus urticae</i>)</h3>
-<p><b>الملاحظات:</b> ثقوب في الخلايا الورقية تؤدي إلى اصفرار منقط (تبقع) ثم جفاف الأوراق. تتغذى العناكب على السطح السفلي للورقة وتنسج خيوطاً حريرية.</p>
-<p><b>الظروف المساعدة:</b> ارتفاع الحرارة (>30°م) وانخفاض الرطوبة الجوية (<60%)، وكذلك الإجهاد المائي يزيد من شدة الإصابة.</p>
-<h4>🛠️ المكافحة المتكاملة للآفات (IPM):</h4>
-<p><b>1. المكافحة الكيميائية (بالتناوب لتجنب المقاومة):</b></p>
+<h3>🕷️ تحليل الآفة – العنكبوت الأحمر ذو البقعتين (Tetranychus urticae)</h3>
+<p><strong>الملاحظات:</strong> ثقوب في الخلايا الورقية تؤدي إلى اصفرار منقط (تبقع) ثم جفاف الأوراق. تتغذى العناكب على السطح السفلي للأوراق وتنسج خيوطاً حريرية كثيفة.</p>
+<p><strong>الظروف المساعدة:</strong> ارتفاع الحرارة (&gt;30°م) وانخفاض الرطوبة الجوية (&lt;60%)، بالإضافة إلى الإجهاد المائي يزيد من حدة الإصابة.</p>
+<h4>🛠️ الإدارة المتكاملة للآفات (IPM):</h4>
+<p><strong>1. المكافحة الكيميائية (بالتناوب لمنع المقاومة):</strong></p>
 <ul>
-<li><b>أبامكتين 1.8% EC:</b> 50 مل/100 لتر مع ضمان تغطية السطح السفلي للأوراق.</li>
-<li><b>سبيروميسيفين</b> (أوبرون) 25 مل/100 لتر – ممتاز لمكافحة البيض والحوريات.</li>
-<li><b>هيكسيثياوكس</b> (نيسورون) 15 مل/100 لتر – يثبط انسلاخ الحوريات.</li>
-<li><b>زيت النيم</b> 2-3 مل/لتر – بديل طبيعي مع تأثير مانع للتغذية.</li>
+<li><strong>أبامكتين 1.8% EC</strong> (فيرتيميك) 50 مل/100 لتر – يغطى السطح السفلي للأوراق.</li>
+<li><strong>سبيروميسيفين</strong> (أوبرون) 25 مل/100 لتر – ممتاز ضد البيض والحوريات.</li>
+<li><strong>هيكسيثياوكس</strong> (نيسورون) 15 مل/100 لتر – يثبط انسلاخ الحوريات.</li>
+<li><strong>زيت النيم</strong> 2-3 مل/لتر – بديل طبيعي مانع للتغذية.</li>
 </ul>
-<p><b>2. المكافحة الفيزيائية والبيئية:</b></p>
+<p><strong>2. المكافحة الفيزيائية والبيئية:</strong></p>
 <ul>
-<li><b>الرش الضبابي:</b> زيادة الرطوبة حول النبات (رش الأوراق بالماء) يثبط تكاثر العناكب.</li>
-<li><b>التبريد:</b> خفض درجة الحرارة في الصوب أو استخدام مراوح للتهوية.</li>
-<li><b>إزالة الأعشاب الضارة:</b> لأنها عوائل بديلة للآفة.</li>
+<li><strong>الرش الضبابي:</strong> رفع الرطوبة حول النبات (رش الأوراق بالماء) يثبط تكاثر العناكب.</li>
+<li><strong>التبريد:</strong> خفض درجة الحرارة في الصوب أو استخدام مراوح للتهوية.</li>
+<li><strong>إزالة الأعشاب الضارة:</strong> لأنها عوائل بديلة للآفة.</li>
 </ul>
-<p><b>3. المكافحة الحيوية:</b> إطلاق المفترسات الطبيعية مثل <i>Phytoseiulus persimilis</i> (على الأقل 10 أفراد/م²) عند ظهور الإصابة المبكرة. تجنب المبيدات واسعة المجال التي تقتل هذه المفترسات.</p>"""
+<p><strong>3. المكافحة الحيوية:</strong> إطلاق المفترسات الطبيعية مثل <em>Phytoseiulus persimilis</em> (10 أفراد/م²) عند أول ظهور للإصابة. تجنب المبيدات واسعة المجال التي تقتل هذه المفترسات.</p>"""
         elif "Virus" in disease or "mosaic" in disease or "YellowLeaf" in disease:
             html += """
-<h3>🚫 التقييم الباثولوجي: استيطان فيروسي جهازي</h3>
-<p><b>ملاحظة فنية:</b> الفيروسات جهازية، بمجرد الإصابة لا يوجد علاج كيميائي لأنسجة النبات المصابة. يعتمد النجاح على منع الانتشار والسيطرة على النواقل.</p>
-<p><b>الأعراض:</b> تبرقش الأوراق (تناوب مناطق خضراء وصفراء)، تجعد، تقزم النبات، تشوه الثمار، ضعف عام.</p>
+<h3>🚫 تقييم باثولوجي – عدوى فيروسية جهازية</h3>
+<p><strong>ملاحظة فنية:</strong> الفيروسات جهازية، بمجرد الإصابة لا يوجد علاج كيميائي لأنسجة النبات المصابة. النجاح يعتمد على منع الانتشار والسيطرة على النواقل.</p>
+<p><strong>الأعراض:</strong> تبرقش الأوراق (تبادل مناطق خضراء وصفراء)، تجعد، تقزم النبات، تشوه الثمار، ضعف عام في النمو.</p>
 <h4>🛠️ استراتيجية السيطرة (لا علاج، فقط منع):</h4>
-<p><b>1. إدارة النواقل (الحشرات):</b> السيطرة على الذبابة البيضاء (ناقل فيروس تجعد الأوراق الصفراء) والمن (ناقل فيروس الموزاييك).</p>
+<p><strong>1. إدارة النواقل (الحشرات):</strong> السيطرة على الذبابة البيضاء (ناقل فيروس تجعد الأوراق الصفراء) والمن (ناقل فيروس الموزاييك).</p>
 <ul>
-<li>استخدم مبيدات جهازية مثل <b>إيميداكلوبريد</b> (كونفيدور 0.5 مل/لتر) أو <b>أسيتاميبريد</b> (موسبيلان 0.25 جم/لتر) بالتناوب مع مبيدات تماس (بيرميثرين).</li>
-<li>انشر المصائد اللاصقة الصفراء (15-20 مصيدة/فدان) للمراقبة والكشف المبكر.</li>
-<li>استخدم شبكات حشرية دقيقة (50 ميكرون) على مداخل الصوب وفتحات التهوية.</li>
+<li>استخدام مبيدات جهازية مثل <strong>إيميداكلوبريد</strong> (كونفيدور 0.5 مل/لتر) أو <strong>أسيتاميبريد</strong> (موسبيلان 0.25 جم/لتر) بالتناوب مع مبيدات تماس (بيرميثرين).</li>
+<li>نشر المصائد اللاصقة الصفراء (15-20 مصيدة/فدان) للمراقبة والكشف المبكر.</li>
+<li>تركيب شبكات حشرية دقيقة (50 ميكرون) على مداخل الصوبات وفتحات التهوية.</li>
 </ul>
-<p><b>2. الاستئصال:</b> اقتلع النباتات المصابة فوراً لأنها بؤرة لانتشار الفيروس. ضعها في أكياس محكمة وأخرجها خارج الحقل. لا تترك بقايا النباتات داخل التربة.</p>
-<p><b>3. وقاية الزراعة الجديدة:</b> استخدم شتلات خالية من الفيروسات من مصادر موثوقة. تطهير الأدوات واليدين قبل العمل في الحقل. تجنب زراعة المحاصيل المتضررة بجانب محاصيل حساسة جديدة.</p>"""
+<p><strong>2. الاستئصال:</strong> قلع النباتات المصابة فوراً لأنها بؤرة لانتشار الفيروس. وضعها في أكياس محكمة وإخراجها خارج الحقل. عدم ترك بقايا النباتات داخل التربة.</p>
+<p><strong>3. وقاية الزراعة الجديدة:</strong> استخدام شتلات خالية من الفيروسات من مصادر موثوقة. تطهير الأدوات واليدين قبل العمل في الحقل. تجنب زراعة المحاصيل الحساسة بجوار حقول مصابة.</p>"""
         else:
             html += f"""
 <h3>🍄 التشخيص: {disease_ar}</h3>
-<p>بقع ميتة على الأوراق (نخرية) ناتجة على الأرجح عن مسببات فطرية أو بكتيرية. يعتمد العلاج على المسبب المحدد ولكن يمكن اتباع بروتوكول عام.</p>
+<p>بقع نخرية على الأوراق ناتجة عن مسببات فطرية أو بكتيرية. يعتمد العلاج على المسبب الدقيق ولكن يمكن اتباع البروتوكول العام التالي.</p>
 <h4>🛠️ توصيات الخبراء للسيطرة:</h4>
-<p><b>1. المكافحة الكيميائية (عند ظهور الأعراض):</b></p>
+<p><strong>1. المكافحة الكيميائية (عند ظهور الأعراض):</strong></p>
 <ul>
-<li><b>كلوروثالونيل</b> (برافو) 200 مل/100 لتر – فطري واسع المجال.</li>
-<li><b>أزوكسيستروبين</b> (أميستار) 40 مل/100 لتر – فطري جهازي مع تأثير وقائي وعلاجي.</li>
-<li><b>أوكسي كلورور النحاس</b> 300 جم/100 لتر – للكبح البكتيري والفطري (يستخدم بحذر لتجنب التسمم).</li>
-<li><b>مانكوزيب</b> (مانزوكوب) 250 جم/100 لتر – فعال ضد الندوات المبكرة والمتأخرة.</li>
+<li><strong>كلوروثالونيل</strong> (برافو) 200 مل/100 لتر – فطري واسع المجال.</li>
+<li><strong>أزوكسيستروبين</strong> (أميستار) 40 مل/100 لتر – فطري جهازي وقائي وعلاجي.</li>
+<li><strong>أوكسي كلورور النحاس</strong> 300 جم/100 لتر – للكبح البكتيري والفطري (يستخدم بحذر لتجنب التسمم).</li>
+<li><strong>مانكوزيب</strong> (مانزوكوب) 250 جم/100 لتر – فعال ضد الندوات المبكرة والمتأخرة.</li>
 </ul>
-<p><b>2. الإجراءات الثقافية:</b></p>
+<p><strong>2. الإجراءات الثقافية:</strong></p>
 <ul>
 <li>تقليم الأوراق السفلية والمصابة لتحسين التهوية وتقليل مصدر العدوى.</li>
-<li>تجنب الري بالرش، واستخدم الري بالتنقيط.</li>
+<li>تجنب الري بالرش، واستخدام الري بالتنقيط.</li>
 <li>تطبيق التغطية بالبلاستيك (mulching) لمنع تناثر التربة الملوثة على الأوراق.</li>
 <li>تناوب المحاصيل مع نباتات غير عائلة (مثل البقوليات) لمدة عامين.</li>
 </ul>
-<p><b>3. المكافحة الحيوية:</b> رش مستحضرات تحتوي على <i>Bacillus subtilis</i> (سيريناد) أو <i>Trichoderma</i> لتثبيط نمو الفطريات الممرضة.</p>"""
+<p><strong>3. المكافحة الحيوية:</strong> رش مستحضرات تحتوي على <em>Bacillus subtilis</em> (سيريناد) أو <em>Trichoderma</em> لتثبيط نمو الفطريات الممرضة.</p>"""
 
         # Environmental Context Arabic (expanded)
         html += "<h4>🌍 عوامل الذكاء البيئي وتوصيات مكيفة:</h4>"
         if temp > 38:
-            html += f"<p>⚠️ <b>إجهاد حراري ({temp} م°):</b> استخدم <b>سليكات البوتاسيوم</b> (2 مل/لتر) لتقوية جدر الخلايا وتقليل النتح. رش الأحماض الأمينية والجبرلين لتخفيف الإجهاد. زد فترات الري ليلاً لتبريد الجذور.</p>"
+            html += f"<p>⚠️ <strong>إجهاد حراري ({temp}°م):</strong> استخدام <strong>سليكات البوتاسيوم</strong> (2 مل/لتر) لتقوية جدر الخلايا وتقليل النتح. رش الأحماض الأمينية والجبرلين لتخفيف الإجهاد. زيادة الري ليلاً لتبريد منطقة الجذور.</p>"
         elif temp < 10:
-            html += f"<p>❄️ <b>إجهاد برودة ({temp} م°):</b> استخدم أغطية بلاستيكية ليلاً. رش سترات الكالسيوم لتعزيز صلابة النبات. قلل الري لتجنب تعفن الجذور.</p>"
+            html += f"<p>❄️ <strong>إجهاد برودة ({temp}°م):</strong> استخدام أغطية بلاستيكية ليلاً. رش سترات الكالسيوم لتعزيز صلابة النبات. تقليل الري لتجنب تعفن الجذور.</p>"
         
         if soil == "طينية" and water in ["عالي", "مشبع بالمياه"]:
-            html += "<p>⚠️ <b>ميكانيكا التربة:</b> خطر كبير لحدوث <b>نقص الأكسجين (Hypoxia)</b> وعفن الجذور في التربة الثقيلة. أضف مادة عضوية (كمبوست) لتحسين الصرف. زود فترات الجفاف بين الريات. استخدم مراوح تهوية في الصوب لزيادة الأكسجين حول الجذور.</p>"
+            html += "<p>⚠️ <strong>ميكانيكا التربة:</strong> خطر مرتفع لحدوث <strong>نقص الأكسجين (Hypoxia)</strong> وعفن الجذور في التربة الثقيلة. إضافة مادة عضوية (كمبوست) لتحسين الصرف. إطالة فترات الجفاف بين الريات. استخدام مراوح تهوية في الصوب لزيادة الأكسجين حول الجذور.</p>"
         elif soil == "رملية" and water == "منخفض":
-            html += "<p>💧 <b>إجهاد جفاف:</b> التربة الرملية تستنزف الماء بسرعة. النبات يقترب من نقطة الذبول الدائم. زد وتيرة الري مع تقليل الكمية (الري المتكرر الخفيف). أضف مادة حافظة للرطوبة مثل البوليمرات الماصة أو الكمبوست لتحسين احتفاظ التربة بالماء.</p>"
+            html += "<p>💧 <strong>إجهاد جفاف:</strong> التربة الرملية تستنزف الماء بسرعة. النبات يقترب من نقطة الذبول الدائم. زيادة وتيرة الري مع تقليل الكمية (الري المتكرر الخفيف). إضافة مواد حافظة للرطوبة مثل البوليمرات الماصة أو الكمبوست لتحسين احتفاظ التربة بالماء.</p>"
         elif soil == "طينية" and water == "منخفض":
-            html += "<p>⚠️ <b>إجهاد جفاف في تربة ثقيلة:</b> التربة الطينية قد تتشقق وتجف بسرعة رغم قدرتها على الاحتفاظ بالماء. قم بالتغطية العضوية (القش) حول النباتات للحفاظ على رطوبة التربة ومنع التبخر.</p>"
+            html += "<p>⚠️ <strong>إجهاد جفاف في تربة ثقيلة:</strong> التربة الطينية قد تتشقق وتجف بسرعة رغم قدرتها على الاحتفاظ بالماء. التغطية العضوية (القش) حول النباتات للحفاظ على رطوبة التربة ومنع التبخر.</p>"
         
         html += f"""<hr>
-<p style="font-style: italic;"><b>القرار الهندسي النهائي:</b> مستوى الثقة {conf*100:.1f}%. التوصيات مبنية على البروتوكولات الزراعية الدولية وممارسات الخبراء.</p>
-<p style="font-size: 0.9em;"><b>ملاحظة مهمة:</b> هذه التوصيات استشارية. راجع دائمًا مهندس زراعي معتمد لتحديد الجرعات حسب ظروفك الحقلية والتشريعات المحلية.</p>
+<p style="font-style: italic;"><strong>القرار الهندسي النهائي:</strong> مستوى الثقة {conf*100:.1f}%. التوصيات تستند إلى البروتوكولات الزراعية الدولية وممارسات الخبراء المعتمدة.</p>
+<p style="font-size: 0.9em;"><strong>ملاحظة مهمة:</strong> هذه التوصيات استشارية. يُرجى الرجوع إلى مهندس زراعي معتمد لتحديد الجرعات وفق ظروفك الحقلية والتشريعات المحلية.</p>
 </div>"""
 
     else:
-        # English Version (expanded similarly)
+        # English Version (professional)
         html = f"""<div class="report-container">
-<h2 style="text-align: center;">AGRICULTURE CLINIC REPORT</h2>
-<p style="text-align: center;">Generated by ENG/ AHMED ABD AL-HAFEZ</p>
+<h2 style="text-align: center;">📋 CERTIFIED AGRICULTURE CLINIC REPORT</h2>
+<p style="text-align: center; opacity:0.7;">Certified Agricultural Engineer: Ahmed Abd Al-Hafez</p>
 <hr>
-<p><b>Primary Diagnosis:</b> {disease_en}</p>
-<p><b>Statistical Confidence:</b> {conf*100:.2f}%</p>
-<p><b>Field Conditions:</b> Temp: {temp}°C | Soil: {soil} | Irrigation: {water}</p>
+<p><strong>Primary Diagnosis:</strong> {disease_en}</p>
+<p><strong>Statistical Confidence:</strong> {conf*100:.2f}%</p>
+<p><strong>Field Conditions:</strong> Temperature: {temp}°C | Soil: {soil} | Irrigation: {water}</p>
 <hr>"""
 
         if "healthy" in disease:
             html += """
-<h3>✅ Physiological Assessment: Optimal</h3>
-<p>The analyzed specimen shows <b>excellent chlorophyll density</b> and no cellular degradation. The vascular system appears functional.</p>
-<h4>📋 Detailed Strategic Recommendations:</h4>
+<h3>✅ Physiological Assessment – Healthy</h3>
+<p>The analyzed sample exhibits <strong>excellent photosynthetic efficiency</strong> and no signs of biotic or abiotic stress. The vascular system is fully functional.</p>
+<h4>📌 Strategic Recommendations for Plant Health Maintenance:</h4>
 <ul>
-<li><b>Nutritional Balance:</b> Maintain N-P-K ratios (e.g., 1:1:1 during vegetative stage, then 1:2:2 after flowering). Focus on Calcium-Boron applications (e.g., Calcium nitrate 2-3 kg/1000 m²) during flowering to prevent blossom end rot and fruit cracking.</li>
-<li><b>Biostimulants:</b> Apply Amino Acids (1 L/ha) and Potassium Humate (2-3 kg/ha) to enhance root absorption efficiency and improve stress tolerance.</li>
-<li><b>Preventive Monitoring:</b> Scout the field every 48 hours for early pest egg clusters. Use yellow sticky traps to monitor whiteflies and aphids. Install insect nets on greenhouse openings.</li>
-<li><b>Irrigation Management:</b> Use drip irrigation to avoid excess leaf moisture. Irrigate in the morning to allow foliage to dry during the day. On heavy soils, incorporate dry periods between irrigations to aerate roots.</li>
-<li><b>Future Recommendations:</b> Conduct annual soil analysis to adjust fertilization programs. Use resistant cultivars for common diseases in the next season.</li>
+<li><strong>Precise Nutritional Balance:</strong> Maintain balanced N-P-K ratios (1:1:1 during vegetative stage, then 1:2:2 after flowering). Focus on Calcium (Calcium nitrate 2-3 kg/1000 m²) and Boron (Boric acid 0.5-1 g/L) applications during flowering to prevent blossom end rot and fruit cracking.</li>
+<li><strong>Biostimulants:</strong> Apply Amino Acids (1 L/ha) and Potassium Humate (2-3 kg/ha) to enhance root absorption and improve stress tolerance.</li>
+<li><strong>Preventive Monitoring:</strong> Scout the field every 48 hours for early pest egg masses. Use yellow sticky traps (15-20 per acre) to monitor whiteflies and aphids. Install insect-proof nets (50 mesh) on greenhouse openings.</li>
+<li><strong>Irrigation Management:</strong> Use drip irrigation to avoid leaf wetness. Irrigate in the morning to allow foliage to dry. On heavy soils, incorporate dry periods between irrigations to aerate roots and prevent hypoxia.</li>
+<li><strong>Future Recommendations:</strong> Conduct annual soil analysis to fine‑tune fertilization. Use resistant cultivars for prevalent diseases in the upcoming season.</li>
 </ul>"""
         elif "Late_blight" in disease:
             html += """
-<h3>🚨 Pathogen Alert: Late Blight (<i>Phytophthora infestans</i>)</h3>
-<p><b>Etiology:</b> An oomycete pathogen that thrives in high humidity (>90%) and moderate temperatures (15-25°C). It can destroy fields within 7-10 days.</p>
-<p><b>Detailed Symptoms:</b> Dark, water-soaked lesions on leaves, turning brown-black with a yellow halo. On stems, elongated brown lesions. Under wet conditions, white mold (sporangia) appears on the underside of leaves. Fruits develop oily brown spots.</p>
-<h4>🛠️ Emergency Action Plan (Integrated Management):</h4>
-<p><b>1. Immediate Chemical Intervention (rotate products):</b></p>
+<h3>🚨 Pathogen Alert – Late Blight (Phytophthora infestans)</h3>
+<p><strong>Etiology:</strong> An oomycete pathogen that thrives in high humidity (>90%) and moderate temperatures (15-25°C). It can devastate fields within 7-10 days under favorable conditions.</p>
+<p><strong>Detailed Symptoms:</strong> Dark, water-soaked lesions on leaves turning brown-black with a yellow halo. Elongated brown lesions on stems. Under humid conditions, white sporangial growth appears on leaf undersides. Fruits develop oily brown spots.</p>
+<h4>🛠️ Integrated Management Plan (Emergency):</h4>
+<p><strong>1. Immediate Chemical Intervention (rotate products):</strong></p>
 <ul>
-<li><b>Metalaxyl-M + Mancozeb</b> (Ridomil Gold) 250 g/100 L – for prevention and early curative action.</li>
-<li><b>Cymoxanil + Famoxadone</b> (Tanos) – strong curative effect.</li>
-<li><b>Propamocarb Hydrochloride</b> (Previcur) 150 ml/100 L – for root and stem protection.</li>
-<li><b>Fosetyl-Aluminum</b> (Aliette) 200 g/100 L – induces plant resistance.</li>
-<li><b>Apply every 5-7 days, alternating, with a sticker (e.g., Silwet).</b></li>
+<li><strong>Metalaxyl-M + Mancozeb</strong> (Ridomil Gold) 250 g/100 L – preventive and early curative.</li>
+<li><strong>Cymoxanil + Famoxadone</strong> (Tanos) – strong curative action.</li>
+<li><strong>Propamocarb Hydrochloride</strong> (Previcur) 150 ml/100 L – protects roots and stems.</li>
+<li><strong>Fosetyl-Aluminum</strong> (Aliette) 200 g/100 L – resistance inducer.</li>
+<li><strong>Apply every 5-7 days, alternating, with a sticker (Silwet 0.5 ml/L).</strong></li>
 </ul>
-<p><b>2. Field Management:</b></p>
+<p><strong>2. Field Management:</strong></p>
 <ul>
-<li><b>Humidity:</b> Halt overhead irrigation immediately. Switch to drip if possible. Increase ventilation in greenhouses.</li>
-<li><b>Sanitation:</b> Remove and burn severely infected plants. Do NOT compost them. Disinfect tools with alcohol or bleach.</li>
-<li><b>Crop Rotation:</b> Do not plant Solanaceae crops (potato, tomato, pepper) in the same field for 3 years.</li>
+<li><strong>Humidity:</strong> Halt overhead irrigation immediately; switch to drip. Increase greenhouse ventilation.</li>
+<li><strong>Sanitation:</strong> Remove and burn severely infected plants. Disinfect tools with 70% alcohol or bleach.</li>
+<li><strong>Crop Rotation:</strong> Avoid planting Solanaceae crops (potato, tomato, pepper) in the same field for at least 3 years.</li>
 </ul>
-<p><b>3. Biological Control:</b> Apply products containing <i>Trichoderma harzianum</i> or <i>Bacillus subtilis</i> to suppress the pathogen in soil.</p>"""
+<p><strong>3. Biological Control:</strong> Apply products containing <em>Trichoderma harzianum</em> or <em>Bacillus subtilis</em> to suppress soil‑borne inoculum.</p>"""
         elif "Spider_mites" in disease:
             html += """
-<h3>🕷️ Pest Analysis: Two-Spotted Spider Mite (<i>Tetranychus urticae</i>)</h3>
-<p><b>Observations:</b> Punctured leaf cells leading to chlorotic stippling, then leaf desiccation. Mites feed on the abaxial surface and produce fine webbing.</p>
-<p><b>Favorable Conditions:</b> High temperatures (>30°C), low humidity (<60%), and water stress exacerbate infestations.</p>
+<h3>🕷️ Pest Analysis – Two-Spotted Spider Mite (Tetranychus urticae)</h3>
+<p><strong>Observations:</strong> Punctured leaf cells cause chlorotic stippling, followed by leaf desiccation. Mites feed on the abaxial surface and produce dense webbing.</p>
+<p><strong>Favorable Conditions:</strong> High temperatures (>30°C), low humidity (<60%), and water stress exacerbate infestations.</p>
 <h4>🛠️ Integrated Pest Management (IPM):</h4>
-<p><b>1. Chemical Control (rotate to prevent resistance):</b></p>
+<p><strong>1. Chemical Control (rotate to avoid resistance):</strong></p>
 <ul>
-<li><b>Abamectin 1.8% EC:</b> 50 ml/100 L, ensure thorough coverage of lower leaf surfaces.</li>
-<li><b>Spiromesifen</b> (Oberon) 25 ml/100 L – excellent against eggs and nymphs.</li>
-<li><b>Hexythiazox</b> (Nissorun) 15 ml/100 L – inhibits molting of nymphs.</li>
-<li><b>Neem Oil</b> 2-3 ml/L – a natural alternative with antifeedant effects.</li>
+<li><strong>Abamectin 1.8% EC</strong> (Vertimec) 50 ml/100 L – ensure thorough coverage of lower leaf surfaces.</li>
+<li><strong>Spiromesifen</strong> (Oberon) 25 ml/100 L – excellent against eggs and nymphs.</li>
+<li><strong>Hexythiazox</strong> (Nissorun) 15 ml/100 L – inhibits nymph molting.</li>
+<li><strong>Neem Oil</strong> 2-3 ml/L – natural antifeedant.</li>
 </ul>
-<p><b>2. Physical and Environmental Control:</b></p>
+<p><strong>2. Physical and Environmental Control:</strong></p>
 <ul>
-<li><b>Mist Spraying:</b> Increasing humidity around plants (misting leaves) suppresses mite reproduction.</li>
-<li><b>Cooling:</b> Reduce greenhouse temperature or use fans for ventilation.</li>
-<li><b>Weed Removal:</b> Eliminate alternative host plants.</li>
+<li><strong>Mist Spraying:</strong> Increase humidity around plants (misting leaves) to suppress mite reproduction.</li>
+<li><strong>Cooling:</strong> Reduce greenhouse temperature or use fans for ventilation.</li>
+<li><strong>Weed Removal:</strong> Eliminate alternative host plants.</li>
 </ul>
-<p><b>3. Biological Control:</b> Release predatory mites such as <i>Phytoseiulus persimilis</i> (at least 10 individuals/m²) at early infestation. Avoid broad‑spectrum pesticides that kill these predators.</p>"""
+<p><strong>3. Biological Control:</strong> Release predatory mites such as <em>Phytoseiulus persimilis</em> (10 individuals/m²) at early infestation. Avoid broad‑spectrum pesticides that kill these predators.</p>"""
         elif "Virus" in disease or "mosaic" in disease or "YellowLeaf" in disease:
             html += """
-<h3>🚫 Pathological Assessment: Systemic Viral Infection</h3>
-<p><b>Technical Note:</b> Viruses are systemic; once infected, there is no chemical cure for plant tissue. Management focuses on preventing spread and controlling vectors.</p>
-<p><b>Symptoms:</b> Mosaic (alternating green and yellow patches), leaf curl, stunting, fruit deformities, general decline.</p>
+<h3>🚫 Pathological Assessment – Systemic Viral Infection</h3>
+<p><strong>Technical Note:</strong> Viruses are systemic; once infected, there is no chemical cure for plant tissue. Success depends on preventing spread and controlling vectors.</p>
+<p><strong>Symptoms:</strong> Mosaic (alternating green and yellow patches), leaf curl, stunting, fruit deformities, overall decline.</p>
 <h4>🛠️ Control Strategy (No Cure, Only Prevention):</h4>
-<p><b>1. Vector Management:</b> Control whiteflies (vector of Tomato Yellow Leaf Curl Virus) and aphids (vector of mosaic viruses).</p>
+<p><strong>1. Vector Management:</strong> Control whiteflies (vector of Tomato Yellow Leaf Curl Virus) and aphids (vector of mosaic viruses).</p>
 <ul>
-<li>Use systemic insecticides such as <b>Imidacloprid</b> (Confidor 0.5 ml/L) or <b>Acetamiprid</b> (Mospilan 0.25 g/L), alternating with contact products (permethrin).</li>
+<li>Use systemic insecticides such as <strong>Imidacloprid</strong> (Confidor 0.5 ml/L) or <strong>Acetamiprid</strong> (Mospilan 0.25 g/L), alternating with contact products (permethrin).</li>
 <li>Place yellow sticky traps (15-20 per acre) for monitoring and early detection.</li>
 <li>Install fine mesh insect nets (50 micron) on greenhouse vents and entrances.</li>
 </ul>
-<p><b>2. Eradication:</b> Uproot infected plants immediately as they serve as virus reservoirs. Place them in sealed bags and remove from the field. Do not leave plant debris inside.</p>
-<p><b>3. Protection for New Plantings:</b> Use virus‑free seedlings from reliable sources. Disinfect tools and hands before working in the field. Avoid planting new susceptible crops adjacent to infected fields.</p>"""
+<p><strong>2. Eradication:</strong> Uproot infected plants immediately as they serve as virus reservoirs. Place them in sealed bags and remove from the field. Do not leave plant debris inside.</p>
+<p><strong>3. Protection for New Plantings:</strong> Use virus‑free seedlings from reliable sources. Disinfect tools and hands before working. Avoid planting new susceptible crops adjacent to infected fields.</p>"""
         else:
             html += f"""
 <h3>🍄 Diagnosis: {disease_en}</h3>
 <p>Necrotic leaf lesions likely caused by fungal or bacterial pathogens. A general control protocol is provided below.</p>
 <h4>🛠️ Expert Recommendations for Control:</h4>
-<p><b>1. Chemical Control (when symptoms appear):</b></p>
+<p><strong>1. Chemical Control (when symptoms appear):</strong></p>
 <ul>
-<li><b>Chlorothalonil</b> (Bravo) 200 ml/100 L – broad‑spectrum fungicide.</li>
-<li><b>Azoxystrobin</b> (Amistar) 40 ml/100 L – systemic fungicide with protective and curative action.</li>
-<li><b>Copper Oxychloride</b> 300 g/100 L – for bacterial and fungal suppression (use cautiously to avoid phytotoxicity).</li>
-<li><b>Mancozeb</b> (Manzate) 250 g/100 L – effective against early and late blights.</li>
+<li><strong>Chlorothalonil</strong> (Bravo) 200 ml/100 L – broad‑spectrum fungicide.</li>
+<li><strong>Azoxystrobin</strong> (Amistar) 40 ml/100 L – systemic fungicide with protective and curative action.</li>
+<li><strong>Copper Oxychloride</strong> 300 g/100 L – for bacterial and fungal suppression (use cautiously to avoid phytotoxicity).</li>
+<li><strong>Mancozeb</strong> (Manzate) 250 g/100 L – effective against early and late blights.</li>
 </ul>
-<p><b>2. Cultural Practices:</b></p>
+<p><strong>2. Cultural Practices:</strong></p>
 <ul>
 <li>Prune lower and infected leaves to improve air circulation and reduce inoculum.</li>
 <li>Avoid overhead irrigation; use drip irrigation.</li>
 <li>Apply plastic mulch to prevent soil splash onto leaves.</li>
 <li>Rotate crops with non‑host families (e.g., legumes) for two years.</li>
 </ul>
-<p><b>3. Biological Control:</b> Apply products containing <i>Bacillus subtilis</i> (Serenade) or <i>Trichoderma</i> to suppress fungal pathogens.</p>"""
+<p><strong>3. Biological Control:</strong> Apply products containing <em>Bacillus subtilis</em> (Serenade) or <em>Trichoderma</em> to suppress fungal pathogens.</p>"""
 
         # Environmental Context English (expanded)
         html += "<h4>🌍 Environmental Intelligence Factors & Tailored Recommendations:</h4>"
         if temp > 38:
-            html += f"<p>⚠️ <b>Heat Stress ({temp}°C):</b> Apply <b>Potassium Silicate</b> (2 ml/L) to harden cell walls and reduce transpiration. Spray amino acids and gibberellins to alleviate stress. Increase night irrigation to cool roots.</p>"
+            html += f"<p>⚠️ <strong>Heat Stress ({temp}°C):</strong> Apply <strong>Potassium Silicate</strong> (2 ml/L) to strengthen cell walls and reduce transpiration. Spray amino acids and gibberellins to alleviate stress. Increase night irrigation to cool roots.</p>"
         elif temp < 10:
-            html += f"<p>❄️ <b>Cold Stress ({temp}°C):</b> Use plastic covers at night. Spray calcium citrate to strengthen plant cell walls. Reduce irrigation to avoid root rot.</p>"
+            html += f"<p>❄️ <strong>Cold Stress ({temp}°C):</strong> Use plastic covers at night. Spray calcium citrate to strengthen plant cell walls. Reduce irrigation to avoid root rot.</p>"
         
         if soil == "Clay" and water in ["High", "Waterlogged"]:
-            html += "<p>⚠️ <b>Soil Mechanics:</b> High risk of <b>Hypoxia</b> and root rot in heavy soil. Add organic matter (compost) to improve drainage. Increase dry periods between irrigations. Use ventilation fans in greenhouses to boost oxygen around roots.</p>"
+            html += "<p>⚠️ <strong>Soil Mechanics:</strong> High risk of <strong>Hypoxia</strong> and root rot in heavy soil. Add organic matter (compost) to improve drainage. Increase dry periods between irrigations. Use ventilation fans in greenhouses to boost oxygen around roots.</p>"
         elif soil == "Sandy" and water == "Low":
-            html += "<p>💧 <b>Drought Stress:</b> Sandy soils drain rapidly. Plant is nearing wilting point. Increase irrigation frequency with smaller amounts (light, frequent watering). Add moisture‑retaining materials like hydrogels or compost to improve water holding capacity.</p>"
+            html += "<p>💧 <strong>Drought Stress:</strong> Sandy soils drain rapidly. Plant is nearing wilting point. Increase irrigation frequency with smaller amounts (light, frequent watering). Add moisture‑retaining materials like hydrogels or compost to improve water holding capacity.</p>"
         elif soil == "Clay" and water == "Low":
-            html += "<p>⚠️ <b>Drought Stress in Heavy Soil:</b> Clay soils may crack and dry quickly despite their water‑holding capacity. Apply organic mulch (straw) around plants to conserve moisture and reduce evaporation.</p>"
+            html += "<p>⚠️ <strong>Drought Stress in Heavy Soil:</strong> Clay soils may crack and dry quickly despite their water‑holding capacity. Apply organic mulch (straw) around plants to conserve moisture and reduce evaporation.</p>"
         
         html += f"""<hr>
-<p style="font-style: italic;"><b>Final Engineering Verdict:</b> Confidence level is {conf*100:.1f}%. Recommendations are based on international agronomic protocols and expert practices.</p>
-<p style="font-size: 0.9em;"><b>Important Note:</b> These recommendations are advisory. Always consult a certified agricultural engineer for precise dosages based on your field conditions and local regulations.</p>
+<p style="font-style: italic;"><strong>Final Engineering Verdict:</strong> Confidence level is {conf*100:.1f}%. Recommendations are based on international agronomic protocols and expert practices.</p>
+<p style="font-size: 0.9em;"><strong>Important Note:</strong> These recommendations are advisory. Always consult a certified agricultural engineer for precise dosages based on your field conditions and local regulations.</p>
 </div>"""
     return html
 
