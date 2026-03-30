@@ -1,4 +1,3 @@
-
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -43,7 +42,7 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Segoe+UI:wght@400;700&display=swap');
     
     .stApp {{
-        background-image: url('background..jpeg');
+        background-image: url('background.jpeg');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -427,7 +426,7 @@ with c2:
 
 
 
-            if st.session_state.show_modal and st.session_state.saved_report:
+            if False and st.session_state.show_modal and st.session_state.saved_report:
                 modal_html = f"""
                 <div class="modal-overlay" id="modal">
                     <div class="modal-box">
@@ -436,13 +435,13 @@ with c2:
                         </div>
                     </div>
                     """
-                    st.markdown(modal_html, unsafe_allow_html=True)
+                st.markdown(modal_html, unsafe_allow_html=True)
 
                 # عرض التقرير في الصفحة بعد إغلاق البوبب
-            if st.session_state.saved_report:
-                st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
-            else:
-                st.info(ui["wait"])
+    if st.session_state.saved_report:
+        st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
+    else:
+        st.info(ui["wait"])
 
 st.markdown("---")
 st.caption(ui["footer"])
