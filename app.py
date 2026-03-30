@@ -427,22 +427,22 @@ with c2:
 
 
 
-    if st.session_state.show_modal and st.session_state.saved_report:
-    modal_html = f"""
-    <div class="modal-overlay" id="modal">
-        <div class="modal-box">
-            <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
-            {st.session_state.saved_report}
-        </div>
-    </div>
-    """
-    st.markdown(modal_html, unsafe_allow_html=True)
+            if st.session_state.show_modal and st.session_state.saved_report:
+                modal_html = f"""
+                <div class="modal-overlay" id="modal">
+                    <div class="modal-box">
+                        <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
+                        {st.session_state.saved_report}
+                        </div>
+                    </div>
+                    """
+                    st.markdown(modal_html, unsafe_allow_html=True)
 
-# عرض التقرير في الصفحة بعد إغلاق البوبب
-if st.session_state.saved_report:
-    st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
-    else:
-        st.info(ui["wait"])
+                # عرض التقرير في الصفحة بعد إغلاق البوبب
+            if st.session_state.saved_report:
+                st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
+            else:
+                st.info(ui["wait"])
 
 st.markdown("---")
 st.caption(ui["footer"])
