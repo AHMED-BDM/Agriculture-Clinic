@@ -581,22 +581,22 @@ with c2:
                 st.session_state.show_modal = True
                 
                 # Display modal (overlay)
-if st.session_state.show_modal:
+                if st.session_state.show_modal:
     # زرار الإغلاق
-    col_close = st.columns([10, 1])[1]
-    with col_close:
-        if st.button("✕", key="close_modal"):
-            st.session_state.show_modal = False
-            st.rerun()
+                    col_close = st.columns([10, 1])[1]
+                    with col_close:
+                        if st.button("✕", key="close_modal"):
+                            st.session_state.show_modal = False
+                            st.rerun()
 
     # عرض التقرير في شكل modal
-    st.markdown(f"""
-    <div class="modal-overlay">
-        <div class="modal-box">
-            {st.session_state.saved_report}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div class="modal-overlay">
+                        <div class="modal-box">
+                            {st.session_state.saved_report}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 
 
