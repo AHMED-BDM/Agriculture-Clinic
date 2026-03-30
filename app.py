@@ -190,6 +190,55 @@ st.markdown(f"""
         }}
     }}
 
+
+
+
+
+
+
+
+/* إجبار كل النصوص تكون سوداء */
+html, body, p, span, div, label, small {{
+    color: #000 !important;
+}}
+
+/* العناوين */
+h1, h2, h3, h4, h5, h6 {{
+    color: #000 !important;
+}}
+
+/* عناصر Streamlit */
+.stMarkdown, .stText, .stSubheader, .stTitle, .stCaption,
+.stAlert, .stInfo, .stSuccess, .stWarning, .stError {{
+    color: #000 !important;
+}}
+
+/* Sidebar */
+section[data-testid="stSidebar"] * {{
+    color: #000 !important;
+}}
+
+/* Inputs */
+input, textarea, select {{
+    color: #000 !important;
+}}
+
+/* Labels الخاصة بالـ widgets */
+label, .stSelectbox label, .stSlider label {{
+    color: #000 !important;
+}}
+
+/* النص داخل الـ uploader */
+[data-testid="stFileUploader"] * {{
+    color: #000 !important;
+}}
+
+/* Fix للـ info box الأزرق */
+.stInfo {{
+    background-color: rgba(0,0,0,0.05) !important;
+    color: #000 !important;
+}}
+
     </style>
 """, unsafe_allow_html=True)
 
