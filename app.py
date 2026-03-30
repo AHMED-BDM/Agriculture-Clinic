@@ -32,7 +32,6 @@ ui = {
     "spinner": "جاري استدعاء قاعدة البيانات الزراعية..." if is_ar else "Accessing Agricultural Knowledge Base...",
     "wait": "في انتظار رفع صورة العينة للتشخيص..." if is_ar else "Awaiting leaf specimen for diagnosis...",
     "footer": "© 2026 النظم الزراعية الذكية | قسم الزراعة الدقيقة" if is_ar else "© 2026 Smart Agri-Systems | Expert Module | Precision Agriculture Division",
-    "export_pdf": "تصدير PDF" if is_ar else "Export PDF",
     "download_report": "تحميل التقرير (HTML)" if is_ar else "Download Report (HTML)",
     "print_report": "طباعة التقرير" if is_ar else "Print Report"
 }
@@ -40,15 +39,8 @@ ui = {
 # Initialize session state
 if "saved_report" not in st.session_state:
     st.session_state.saved_report = ""
-if "show_modal" not in st.session_state:
-    st.session_state.show_modal = False
-
-# Close modal if query param is set
-if "close_modal" in st.query_params:
-    st.session_state.show_modal = False
-    # Remove the param to keep URL clean
-    st.query_params.pop("close_modal")
-    st.rerun()
+if "analysis_done" not in st.session_state:
+    st.session_state.analysis_done = False
 
 # --- 3. Advanced CSS (Dynamic RTL/LTR + Professional Design) ---
 direction = "rtl" if is_ar else "ltr"
@@ -134,7 +126,7 @@ st.markdown(f"""
         letter-spacing: -0.02em;
     }}
     
-    /* Report Container - premium card */
+    /* Report Container - premium card with fade-in animation */
     .report-container {{
         background: #ffffff !important;
         border-radius: 28px;
@@ -143,6 +135,18 @@ st.markdown(f"""
         box-shadow: 0 20px 35px -10px rgba(0,0,0,0.15);
         line-height: 1.7;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        animation: fadeSlideUp 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }}
+    
+    @keyframes fadeSlideUp {{
+        from {{
+            opacity: 0;
+            transform: translateY(20px);
+        }}
+        to {{
+            opacity: 1;
+            transform: translateY(0);
+        }}
     }}
     
     .report-container:hover {{
@@ -186,78 +190,6 @@ st.markdown(f"""
     
     img:hover {{
         transform: scale(1.02);
-    }}
-    
-    /* Modal overlay */
-    .modal-overlay {{
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.75);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        animation: fadeIn 0.25s ease;
-    }}
-    
-    .modal-box {{
-        width: 75%;
-        max-width: 1000px;
-        max-height: 85vh;
-        overflow-y: auto;
-        background: #fff;
-        border-radius: 32px;
-        padding: 2rem;
-        position: relative;
-        animation: scaleIn 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        box-shadow: 0 30px 40px rgba(0,0,0,0.3);
-    }}
-    
-    /* Custom close button inside modal */
-    .modal-close-btn {{
-        position: absolute;
-        top: 1rem;
-        right: 1.5rem;
-        font-size: 1.8rem;
-        font-weight: 700;
-        cursor: pointer;
-        color: #555;
-        transition: all 0.2s;
-        line-height: 1;
-        background: rgba(0,0,0,0.05);
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        z-index: 10000;
-        border: none;
-        font-family: monospace;
-    }}
-    
-    .modal-close-btn:hover {{
-        color: #d32f2f;
-        background: rgba(0,0,0,0.1);
-        transform: rotate(90deg);
-    }}
-    
-    @keyframes fadeIn {{
-        from {{ opacity: 0; }}
-        to {{ opacity: 1; }}
-    }}
-    
-    @keyframes scaleIn {{
-        from {{
-            transform: scale(0.95);
-            opacity: 0;
-        }}
-        to {{
-            transform: scale(1);
-            opacity: 1;
-        }}
     }}
     
     /* Fix for info box */
@@ -601,44 +533,6 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-        # Custom PDF export buttons: Download HTML and Print
-        if st.session_state.saved_report:
-            col_btn1, col_btn2 = st.columns(2)
-            with col_btn1:
-                # Download HTML button
-                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"agri_report_{timestamp}.html"
-                st.download_button(
-                    label=ui["download_report"],
-                    data=st.session_state.saved_report,
-                    file_name=filename,
-                    mime="text/html",
-                    key="download_html"
-                )
-            with col_btn2:
-                # Direct print button using JavaScript
-                # Escape backticks and quotes for safe embedding
-                escaped_report = st.session_state.saved_report.replace('`', '\\`').replace('${', '\\${')
-                print_js = f"""
-                <script>
-                function printReport() {{
-                    var reportHTML = `{escaped_report}`;
-                    var printWindow = window.open('', '_blank');
-                    printWindow.document.write('<html><head><title>Agriculture Report</title>');
-                    printWindow.document.write('<style>body {{ font-family: sans-serif; padding: 2rem; }} .report-container {{ max-width: 1000px; margin: auto; }}</style>');
-                    printWindow.document.write('</head><body>');
-                    printWindow.document.write(reportHTML);
-                    printWindow.document.write('</body></html>');
-                    printWindow.document.close();
-                    printWindow.print();
-                }}
-                </script>
-                <button onclick="printReport()" style="width:100%; background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; font-size: 1.1rem; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 40px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                    {ui["print_report"]}
-                </button>
-                """
-                st.markdown(print_js, unsafe_allow_html=True)
-        
         # Analysis button
         if st.button(ui["btn_analyze"]):
             with st.spinner(ui["spinner"]):
@@ -660,28 +554,54 @@ with c2:
                 # Generate full report
                 full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
                 st.session_state.saved_report = full_report
-                st.session_state.show_modal = True
-                # Force a rerun to display modal
-                st.rerun()
-    
-    # Show report in the main area if no modal is active
-    if st.session_state.saved_report and not st.session_state.show_modal:
-        st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
-    elif not st.session_state.saved_report:
+                st.session_state.analysis_done = True
+                # No rerun needed; report will be displayed below immediately
+                
+        # Show report if analysis was done
+        if st.session_state.analysis_done and st.session_state.saved_report:
+            # Optional: add a small success message or note
+            st.markdown("---")
+            st.markdown("**📊 نتائج التحليل**" if is_ar else "**📊 Analysis Results**")
+            st.markdown(st.session_state.saved_report, unsafe_allow_html=True)
+            
+            # Export buttons
+            st.markdown("---")
+            col_btn1, col_btn2 = st.columns(2)
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"agri_report_{timestamp}.html"
+            with col_btn1:
+                st.download_button(
+                    label=ui["download_report"],
+                    data=st.session_state.saved_report,
+                    file_name=filename,
+                    mime="text/html",
+                    key="download_html"
+                )
+            with col_btn2:
+                # Direct print button using JavaScript
+                escaped_report = st.session_state.saved_report.replace('`', '\\`').replace('${', '\\${')
+                print_js = f"""
+                <script>
+                function printReport() {{
+                    var reportHTML = `{escaped_report}`;
+                    var printWindow = window.open('', '_blank');
+                    printWindow.document.write('<html><head><title>Agriculture Report</title>');
+                    printWindow.document.write('<style>body {{ font-family: sans-serif; padding: 2rem; }} .report-container {{ max-width: 1000px; margin: auto; }}</style>');
+                    printWindow.document.write('</head><body>');
+                    printWindow.document.write(reportHTML);
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();
+                    printWindow.print();
+                }}
+                </script>
+                <button onclick="printReport()" style="width:100%; background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; font-size: 1.1rem; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 40px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                    {ui["print_report"]}
+                </button>
+                """
+                st.markdown(print_js, unsafe_allow_html=True)
+    else:
+        # No file uploaded
         st.info(ui["wait"])
-
-# --- Modal overlay (displayed only if show_modal is True) ---
-if st.session_state.show_modal:
-    # Build modal HTML with a custom close button that sets the close_modal query param
-    modal_html = f"""
-    <div id="modalOverlay" class="modal-overlay">
-        <div class="modal-box">
-            <button class="modal-close-btn" onclick="window.location.href='?close_modal=1';">×</button>
-            {st.session_state.saved_report}
-        </div>
-    </div>
-    """
-    st.markdown(modal_html, unsafe_allow_html=True)
 
 st.markdown("---")
 st.caption(ui["footer"])
