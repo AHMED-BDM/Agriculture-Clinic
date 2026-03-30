@@ -400,7 +400,7 @@ def get_detailed_report(disease, temp, soil, water, conf, is_ar):
 
         html += f"""<hr>
 
-<p style="font-style: italic;"><b>الحكم الهندسي النهائي:</b> مستوى الثقة {conf*100:.1f}%. التوصيات مبنية على البروتوكولات الزراعية الدولية.</p>
+<p style="font-style: italic;"><b>القرار الهندسي النهائي:</b> مستوى الثقة {conf*100:.1f}%. التوصيات مبنية على البروتوكولات الزراعية الدولية.</p>
 
 </div>"""
 
