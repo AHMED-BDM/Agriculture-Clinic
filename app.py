@@ -411,34 +411,33 @@ with c2:
         img = Image.open(uploaded_file)
         st.image(img, width=400, caption=f"ID: {uploaded_file.name}")
         
-        if st.button(ui["btn_analyze"]):
-            with st.spinner(ui["spinner"]):
-                # Process
-                proc_img = img.convert("RGB").resize((224, 224))
-                img_array = np.array(proc_img) / 255.0
-                img_array = np.expand_dims(img_array, axis=0)
-                
-                # Predict
-                raw_preds = model.predict(img_array, verbose=0)
-                best_idx = np.argmax(raw_preds)
-                best_conf = float(np.max(raw_preds))
-                label = class_names[best_idx]
-                
-                # Success Info
-                identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
-                st.success(f"{identified_text} ✓")
-                
-                # Detailed Report Rendering
-                full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
-                modal_html = f"""
-                <div class="modal-overlay" id="modal">
-                    <div class="modal-box">
-                        <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
-                        {full_report}
-                            </div>
-                </div>
-                """
-                st.markdown(modal_html, unsafe_allow_html=True)
+      if st.button(ui["btn_analyze"]):
+       with st.spinner(ui["spinner"]):
+        # Process
+        proc_img = img.convert("RGB").resize((224, 224))
+        img_array = np.array(proc_img) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+        
+        # Predict
+        raw_preds = model.predict(img_array, verbose=0)
+        best_idx = np.argmax(raw_preds)
+        best_conf = float(np.max(raw_preds))
+        label = class_names[best_idx]
+        
+        identified_text = arabic_classes.get(label, label) if is_ar else label.replace('___', ' | ')
+        st.success(f"{identified_text} ✓")
+        
+        full_report = get_detailed_report(label, t_input, s_input_raw, w_input_raw, best_conf, is_ar)
+
+        modal_html = f"""
+        <div class="modal-overlay" id="modal">
+            <div class="modal-box">
+                <div class="close-btn" onclick="document.getElementById('modal').style.display='none'">×</div>
+                {full_report}
+            </div>
+        </div>
+        """
+        st.markdown(modal_html, unsafe_allow_html=True)
       else:
         st.info(ui["wait"])
 
